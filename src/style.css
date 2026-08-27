@@ -1,0 +1,788 @@
+/* Hallmark · macrostructure: Pinned Scroll-Scrubbed Canvas
+ * theme: studied-DNA (source: url) · studied: yes
+ * source-url: https://thewatch.60fps.fr/  ·  observed-fonts: Nekst + Inter
+ * observed-paper: #f0f0f0 · observed-accent: none (monochrome)
+ * this build: Archivo + Instrument Sans + JetBrains Mono · own identity
+ * pre-emit critique: P5 H4 E5 S4 R5 V5
+ */
+
+@import './tokens.css';
+
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  overflow-x: clip;              /* clip, never hidden — keeps sticky working */
+  color: var(--color-ink);
+}
+
+/* Ground + ink both derive from --tone (see tokens.css), driven per frame. */
+body { background: var(--color-paper); }
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* Focus rings stay. The reference removed them; that is a bug, not a style. */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------- z layering
+   backdrop type sits UNDER the canvas so the object occludes it — that
+   collision is the move the reference is built on. Copy sits above both. */
+
+#backdrop, #stage, #cards, #overlay, #chrome {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+#backdrop { z-index: 0; }
+#stage    { z-index: 1; }
+#cards    { z-index: 2; }   /* over the letterforms, under the copy */
+#overlay  { z-index: 3; }
+#chrome   { z-index: 4; }
+
+#stage canvas { display: block; width: 100%; height: 100%; }
+
+/* --------------------------------------------------------------- backdrop */
+
+.backdrop-word {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-back);
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  color: var(--color-ink);
+  opacity: 0;
+  white-space: nowrap;
+  overflow-wrap: anywhere;
+}
+
+/* A stacked type wall: lines at different scales and greys, so the object
+   threads through them instead of sitting flatly in front of one word. */
+/* Full viewport width so lines can be flush-left and crop at both edges. */
+.backdrop-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100vw;
+  gap: 0.01em;
+}
+
+.backdrop-line {
+  /* One size for every line — hierarchy is carried by grey value alone. */
+  font-size: calc(var(--text-back) * 0.66);
+  line-height: 0.88;
+  opacity: var(--a);
+  white-space: nowrap;
+  margin-left: calc(var(--ind) * 100vw);
+}
+
+/* ------------------------------------------------------------------- copy */
+
+.beat-copy {
+  position: absolute;
+  left: var(--space-xl);
+  bottom: 12vh;
+  width: min(23rem, 32vw);
+  opacity: 0;
+}
+
+.beat-copy[data-align='center'] {
+  left: 50%;
+  translate: -50% 0;   /* NOT transform: the loop writes transform per frame */
+  text-align: center;
+  width: min(32rem, 62vw);
+}
+.beat-copy[data-align='center'] .beat-body { margin-inline: auto; }
+.beat-copy[data-align='center'] .specs { justify-content: center; }
+
+.beat-copy[data-align='right'] {
+  left: auto;
+  right: var(--space-xl);
+  text-align: right;
+}
+.beat-copy[data-align='right'] .beat-body { margin-left: auto; }
+.beat-copy[data-align='right'] .specs { justify-content: flex-end; }
+
+/* The lead beat centres under the object instead of sitting in the corner. */
+.beat-copy[data-lead] {
+  left: 50%;
+  translate: -50% 0;   /* NOT transform: the loop writes transform per frame */
+  text-align: center;
+  bottom: 9vh;
+  width: min(34rem, 84vw);
+}
+
+.kicker {
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+  margin-bottom: var(--space-sm);
+}
+
+.beat-title .ch { display: inline-block; white-space: pre; }
+/* The word is the unbreakable unit, not the glyph. */
+.beat-title .word { display: inline-block; white-space: nowrap; }
+
+.beat-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-style: normal;
+  font-size: var(--text-title);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--color-ink-strong);
+  min-width: 0;
+  margin-bottom: var(--space-sm);
+}
+
+.beat-body {
+  color: var(--color-ink-mute);
+  max-width: 34ch;
+}
+.beat-copy[data-lead] .beat-body { margin-inline: auto; }
+
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: var(--rule);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+}
+.specs dt { color: var(--color-ink-mute); text-transform: uppercase; }
+.specs dd { color: var(--color-ink-strong); margin-top: var(--space-2xs); }
+
+/* ----------------------------------------------------------------- chrome */
+
+.wordmark {
+  position: absolute;
+  top: var(--space-lg);
+  left: var(--space-xl);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.hint {
+  transition: opacity var(--dur-mid) var(--ease-out);
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-xl);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+
+.progress {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: var(--color-ink-faint);
+}
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--color-ink);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* ------------------------------------------------------------ scroll track
+   Pure spacer. 24 beats over 3800vh — 23 spans of ~165vh each. */
+
+#scroll-track { height: 3800vh; }
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 900px) {
+  :root { --space-xl: 1.5rem; }
+  .beat-copy { left: var(--space-xl); right: var(--space-xl); width: auto; bottom: 8vh; }
+  .beat-copy[data-lead],
+  .beat-copy[data-align='center'],
+  .beat-copy[data-align='right'] {
+    width: auto; left: var(--space-xl); right: var(--space-xl); translate: none; text-align: left;
+  }
+  .beat-copy[data-align='center'] .beat-body,
+  .beat-copy[data-lead] .beat-body { margin-inline: 0; }
+  .beat-copy[data-align='center'] .specs,
+  .beat-copy[data-align='right'] .specs { justify-content: flex-start; }
+  .beat-body { max-width: none; }
+  .hint { display: none; }
+}
+
+/* ---------------------------------------------- reduced motion / no-canvas
+   Collapse the whole experience into a readable stacked document. */
+
+body[data-static] #stage,
+body[data-static] .progress { display: none; }
+
+body[data-static] #backdrop,
+body[data-static] #overlay {
+  position: static;
+  inset: auto;
+  pointer-events: auto;
+}
+body[data-static] #chrome { position: absolute; }
+
+body[data-static] #backdrop { display: none; }
+
+body[data-static] #overlay {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 8rem var(--space-lg);
+  display: grid;
+  gap: 5rem;
+}
+
+body[data-static] .beat-copy {
+  position: static;
+  opacity: 1 !important;
+  transform: none !important;
+  width: auto;
+  text-align: left;
+}
+body[data-static] .beat-copy[data-lead] { text-align: left; }
+body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+
+/* ------------------------------------------------------- hairline crosshair
+   Technical-drawing guides. Faint enough to read as registration marks. */
+
+.crosshair {
+  position: absolute;
+  background: var(--color-ink-faint);
+  opacity: calc(1 - var(--tone));   /* grid on light ground only */
+}
+.crosshair-h { left: 0; right: 0; height: 1px; top: 50%; }
+.crosshair-v { top: 0; bottom: 0; width: 1px; left: 50%; }
+
+/* --------------------------------------------------------- component index
+   The canvas releases and the page becomes an ordinary document. */
+
+#index {
+  position: relative;
+  z-index: 4;
+  background: var(--color-paper);
+  padding: 12vh 0 18vh;
+}
+
+/* Aligned to the same axis as the part names below.
+   NOTE: no max-width + margin:auto here. Centring the block already indents it
+   by (100vw - 68rem)/2, and adding the same term to padding-left double-counted
+   it — the header landed 176px right of the column it was supposed to match.
+   Using the row's own padding formula makes both sides compute identically. */
+.index-head {
+  margin: 0 0 var(--space-xl);
+  padding-inline: max(var(--space-xl), calc((100vw - 68rem) / 2));
+  padding-left: calc(max(var(--space-xl), (100vw - 68rem) / 2) + 3.25rem);
+}
+.index-title, .index-note { max-width: 40rem; }
+
+.index-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--color-ink-strong);
+  margin: var(--space-sm) 0;
+  overflow-wrap: anywhere;
+}
+
+.index-note { color: var(--color-ink-mute); max-width: 42ch; }
+
+.index-table { border-top: var(--rule); }
+
+.index-row {
+  position: relative;
+  opacity: 0;
+  transform: translateY(0.6rem);
+  transition: opacity 520ms var(--ease-out) calc(var(--i, 0) * 28ms),
+              transform 520ms var(--ease-out) calc(var(--i, 0) * 28ms);
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 17rem) 3rem minmax(0, 8rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-md);
+  padding-block: var(--space-md);
+  padding-inline: max(var(--space-xl), calc((100vw - 68rem) / 2));
+  border-bottom: 0;
+}
+
+/* The hairline draws itself in from the left, one row at a time. */
+.index-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--color-ink-faint);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 700ms var(--ease-out) calc(var(--i, 0) * 28ms);
+}
+
+.index-row[data-in] { opacity: 1; transform: none; }
+.index-row[data-in]::after { transform: scaleX(1); }
+.index-row:nth-child(even) { background: color-mix(in oklch, transparent, var(--color-ink) 5%); }
+.index-row:hover { background: color-mix(in oklch, transparent, var(--color-ink) 5%); }
+
+.index-plus {
+  font-family: var(--font-label);
+  color: var(--color-ink-mute);
+  font-size: 1rem;
+}
+
+.index-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+  letter-spacing: -0.015em;
+  color: var(--color-ink-strong);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.index-n, .index-group, .index-meshes {
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+.index-meshes { text-align: right; color: var(--color-ink-strong); }
+
+.index-total { border-bottom: none; }
+.index-total .index-name { color: var(--color-ink-mute); }
+
+@media (max-width: 760px) {
+  .index-row {
+    grid-template-columns: 1.5rem minmax(0, 1fr) minmax(0, 5.5rem);
+    row-gap: var(--space-2xs);
+    padding-inline: var(--space-xl);
+  }
+  .index-n, .index-group { display: none; }
+}
+
+body[data-static] #index { padding-top: 4vh; }
+
+
+/* -------------------------------------------------------------- the finale
+   One geometry, four finishes. Huge wordmark behind, watches standing in it. */
+
+#finale {
+  position: relative;
+  z-index: 4;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+  background: var(--color-paper);
+  padding: 6vh 0 10vh;
+}
+
+/* The wordmark sits behind the lineup and is MEANT to run off both edges: one
+   word flush to the left gutter with its first letter cropped, the other flush
+   right and cropped, with a hard gap between them that the watches stand in. */
+.finale-type {
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  width: 118vw;
+  margin-inline: -16vw 0;      /* asymmetric: CALIBER crops left, 08 clears right */
+  translate: 0 -9%;            /* lift the letterforms off the dials */
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(5rem, 25vw, 21rem);
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+  color: var(--color-ink-strong);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.finale-count {
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.16em;
+  color: var(--color-ink-mute);
+}
+
+#finale-canvas {
+  grid-area: 1 / 1;
+  width: min(100%, 96rem);
+  height: min(78vh, 46rem);
+  display: block;
+}
+
+/* Above .finale-hit (z-index 3). The half-screen zones are a pointer
+   convenience; the button and the finish list are the REAL controls and must
+   stay tappable. With the zones on top, a touch user could see the button and
+   never reach it — hover masked this on desktop, because hovering hides the
+   button and the zone underneath is what you were meant to press. */
+.finale-ui {
+  grid-area: 1 / 1;
+  align-self: end;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  z-index: 4;
+}
+
+/* Circular control, the one button on the page. */
+.finale-hit {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  z-index: 3;
+}
+.finale-half {
+  border: 0;
+  background: none;
+  cursor: none;
+}
+
+/* Follows the pointer with lag; replaces the cursor over the stage. */
+.model-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-ink-faint);
+  background: color-mix(in oklch, var(--color-paper), transparent 15%);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--color-ink);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 6;
+  transition: opacity var(--dur-mid) var(--ease-out);
+}
+#finale[data-pointer] { cursor: none; }
+#finale[data-pointer] .model-cursor { opacity: 1; }
+/* With a pointer on the stage the chasing label is the affordance, so the
+   fixed button stands down. Touch and reduced-motion keep it. */
+#finale[data-pointer] .select-model { opacity: 0; pointer-events: none; }
+
+.select-model {
+  transition: opacity var(--dur-mid) var(--ease-out);
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-ink);
+  background: var(--color-ink-strong);
+  color: var(--color-paper);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+.select-model:hover { background: var(--color-ink); }
+.select-model:active { transform: scale(0.96); }
+.select-model:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+/* Announced to assistive tech, but not shown: the finish list above already
+   names the selection, and printing it twice read as a duplication bug. */
+.finale-label {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.finale-list {
+  grid-area: 1 / 1;
+  align-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-md);
+  list-style: none;
+  z-index: 4;   /* above .finale-hit — see the note on .finale-ui */
+}
+
+.finale-list button,
+.finale-list span {
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  padding: var(--space-2xs) 0;
+  cursor: pointer;
+}
+.finale-list button:hover { color: var(--color-ink); }
+.finale-list button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.finale-list li[data-on] button {
+  color: var(--color-ink-strong);
+  border-bottom-color: var(--color-ink);
+}
+
+@media (max-width: 760px) {
+  #finale-canvas { height: min(58vh, 30rem); }
+  .select-model { width: 5.5rem; height: 5.5rem; }
+}
+
+body[data-static] #finale-canvas,
+body[data-static] .finale-hit,
+body[data-static] .model-cursor,
+body[data-static] .finale-ui { display: none; }
+
+/* No scroll-driven reveal without motion — show the table outright. */
+body[data-static] .index-row { opacity: 1; transform: none; }
+body[data-static] .index-row::after { transform: scaleX(1); }
+body[data-static] .finale-list { align-self: center; }
+
+
+/* ------------------------------------------------------------------- cards
+   Stills rendered from the page's own geometry. Pure vertical travel at four
+   different rates — no drift, no rotation, no scale. */
+
+.card {
+  position: absolute;
+  top: 0;
+  display: block;
+  height: auto;
+  opacity: 0;
+  background: var(--paper-dark);
+}
+
+@media (max-width: 760px) {
+  .card { width: 34vw !important; }
+  .card[data-i="2"] { width: 48vw !important; }
+}
+
+/* -------------------------------------------------------------- ring gauge
+   Two-tone arc that draws itself around the object as you scroll. */
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(74vh, 34rem);
+  height: min(74vh, 34rem);
+  transform: translate(-50%, -50%) rotate(-90deg);
+  opacity: 0;
+  overflow: visible;
+  transition: opacity var(--dur-mid) var(--ease-out);
+}
+.ring circle {
+  fill: none;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+}
+.ring-dark { stroke: var(--color-ink-strong); }
+/* 22% sat below the noise floor, so the "two-tone" half never registered. */
+.ring-pale { stroke: color-mix(in srgb, var(--color-ink) 40%, transparent); }
+
+body[data-static] #cards,
+body[data-static] .ring { display: none; }
+
+
+/* ------------------------------------------------------------------ tally
+   Oversized numeral bottom-right during the technical act. */
+
+.tally {
+  position: absolute;
+  right: var(--space-xl);
+  bottom: 9vh;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: clamp(3rem, 9vw, 8.5rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--color-ink-strong);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+}
+.tally em {
+  font-style: normal;
+  font-size: var(--text-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-mute);
+}
+@media (max-width: 760px) { .tally { display: none; } }
+body[data-static] .tally { display: none; }
+
+
+/* ---------------------------------------------------------- leader lines
+   Technical-drawing chrome, present only while the watch is exploded. */
+
+.leaders { position: absolute; inset: 0; opacity: 0; }
+
+.leader { position: absolute; top: 0; width: 1px; }
+.leader i {
+  display: block;
+  width: 1px;
+  background: var(--color-ink-faint);
+  margin-inline: auto;
+}
+.leader b {
+  position: absolute;
+  left: 50%;
+  /* --lift staggers the labels vertically while the explore control is held,
+     so labels that share an x can all be shown without overlapping. */
+  bottom: calc(0.75rem + var(--lift, 0px));
+  transition: bottom var(--dur-mid) var(--ease-out);
+  /* writing-mode instead of rotate(): with a rotate the element keeps a
+     horizontal box, so half the label swung below the viewport and clipped.
+     Vertical writing makes the box's HEIGHT the text length, so it grows
+     upward from the anchor and always stays on screen. */
+  writing-mode: vertical-rl;
+  transform: rotate(180deg) translateX(50%);
+  font-family: var(--font-label);
+  font-weight: 400;
+  font-size: var(--text-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-ink-mute);
+}
+
+/* One horizontal datum through the axis the parts separate along. */
+.datum {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--color-ink-faint);
+  opacity: 0;
+}
+
+@media (max-width: 760px) { .leaders, .datum { display: none; } }
+body[data-static] .leaders, body[data-static] .datum { display: none; }
+
+
+/* ------------------------------------------------------------- section glyph
+   A dial mark that recurs beside the copy column at low opacity. It carries no
+   information — it is a continuity anchor across compositions that otherwise
+   share nothing. */
+
+.glyph {
+  position: absolute;
+  left: var(--space-xl);
+  top: 22vh;
+  width: 3.6rem;
+  height: 3.6rem;
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+}
+.glyph .glyph-fill { fill: var(--color-ink); stroke: none; }
+.glyph .glyph-hand { stroke-width: 2; stroke-linecap: round; }
+
+@media (max-width: 900px) { .glyph { display: none; } }
+body[data-static] .glyph { display: none; }
+
+
+/* --------------------------------------------------------- explore control
+   The one interactive affordance on the track. Holding it lifts the collision
+   suppression on the leader labels, so every component is named at once. */
+
+.explore {
+  position: absolute;
+  top: var(--space-lg);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.45rem 0.9rem 0.45rem 0.55rem;
+  border: 1px solid var(--color-ink-faint);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-paper), transparent 30%);
+  backdrop-filter: blur(6px);
+  color: var(--color-ink-mute);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-mid) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
+}
+.explore[data-on] { pointer-events: auto; }
+.explore:hover, .explore[aria-pressed='true'] {
+  color: var(--color-ink-strong);
+  border-color: var(--color-ink-mute);
+}
+.explore:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+/* Circled crosshair — drawn, not an icon font. */
+.explore-mark {
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  position: relative;
+}
+.explore-mark::before, .explore-mark::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+  inset: 50% 22%;
+  height: 1px;
+  translate: 0 -50%;
+}
+.explore-mark::after { inset: 22% 50%; width: 1px; height: auto; translate: -50% 0; }
+
+@media (max-width: 900px) { .explore { display: none; } }
+body[data-static] .explore { display: none; }

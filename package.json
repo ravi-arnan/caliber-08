@@ -1,0 +1,21 @@
+{
+  "name": "caliber-08",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node test-beats.mjs",
+    "test:scene": "node test-meshes.mjs"
+  },
+  "dependencies": {
+    "gsap": "^3.13.0",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1",
+    "vite": "^7.1.0"
+  }
+}

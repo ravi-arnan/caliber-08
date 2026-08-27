@@ -1,0 +1,73 @@
+/* Caliber 08 — portable design tokens.
+ * Extracted DNA source: https://thewatch.60fps.fr/ (structure only).
+ * Monochrome by design: the studied reference carries no chromatic accent.
+ */
+
+:root {
+  /* Monochrome, per the studied DNA — no chromatic accent anywhere.
+   *
+   * The piece runs a three-act ground ramp: near-white -> mid-grey -> near-black.
+   * `--tone` (0..1) is driven per-frame by the render loop, and BOTH paper and
+   * ink are derived from it, so copy inverts to light automatically as the
+   * ground goes dark. Defining ink as a fixed dark value would make every
+   * paragraph vanish in the dark act. */
+  --tone: 0;
+
+  --paper-light:  oklch(95.5% 0 0);
+  --paper-mid:    oklch(76%   0 0);
+  --paper-dark:   oklch(17%   0 0);
+
+  --ink-on-light: oklch(18%   0 0);
+  --ink-on-dark:  oklch(97%   0 0);
+
+  /* 0 or 1, written by the render loop. NOT a blend of --tone.
+   *
+   * Any continuous dark->light ink blend must pass through whatever lightness
+   * the paper currently has, and it did: around tone 0.68 ink and paper landed
+   * within 1.7 lightness of each other and every word on the page vanished.
+   * A hard step never crosses; the loop applies hysteresis so it cannot chatter
+   * when scrolling back and forth across the boundary. */
+  --ink-flip: 0;
+
+  /* Two-stage ramp: light -> mid over the first half of --tone, mid -> dark
+     over the second, so the mid-grey act is a real stop, not a way-point. */
+  --color-paper: color-mix(in oklch,
+      color-mix(in oklch, var(--paper-light), var(--paper-mid) calc(min(var(--tone), 0.5) * 200%)),
+      var(--paper-dark) calc(max(var(--tone) - 0.5, 0) * 200%));
+
+  --color-paper-2:    oklch(91% 0 0);
+  --color-paper-mid:  var(--paper-mid);
+
+  --color-ink: color-mix(in oklch, var(--ink-on-light),
+               var(--ink-on-dark) calc(var(--ink-flip) * 100%));
+
+  --color-ink-strong: color-mix(in srgb, var(--color-ink) 88%, var(--color-paper));
+  /* 58% measured 3.3:1 against the mid-dark ground around tone 0.84 — under the
+     4.5:1 floor for body copy and kickers, both of which use this token. */
+  --color-ink-mute:   color-mix(in srgb, var(--color-ink) 78%, transparent);
+  --color-ink-faint:  color-mix(in srgb, var(--color-ink) 13%, transparent);
+  --color-focus:      var(--color-ink);
+
+  --font-display: 'Archivo', 'Helvetica Neue', sans-serif;
+  --font-body:    'Instrument Sans', system-ui, sans-serif;
+  --font-label:   'JetBrains Mono', ui-monospace, monospace;
+
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1.25rem;
+  --space-lg:  2rem;
+  --space-xl:  3.5rem;
+
+  --text-label: 0.6875rem;
+  --text-body:  0.9375rem;
+  --text-title: clamp(1.75rem, 4.4vw, 3.25rem);
+  --text-back:  clamp(5rem, 21vw, 19rem);
+
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-mid:  320ms;
+
+  --rule: 1px solid var(--color-ink-faint);
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Caliber 08 — a mechanical automatic, drawn in code</title>
+<meta name="description" content="A scroll-choreographed product study. The watch is generated procedurally in Three.js — no model file, no textures." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23222' stroke-width='2'/%3E%3Cpath d='M16 8v8l5 3' stroke='%23222' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+</head>
+<body>
+
+  <!-- Huge display type. Sits UNDER the canvas so the watch occludes it. -->
+  <div id="backdrop" aria-hidden="true"></div>
+
+  <!-- The single fixed canvas. Scroll scrubs it; it never scrolls itself. -->
+  <div id="stage" aria-hidden="true"></div>
+
+  <!-- Stills rendered from the same geometry, climbing at four rates. -->
+  <div id="cards" aria-hidden="true"></div>
+
+  <!-- Per-beat copy, cross-faded above the canvas. -->
+  <main id="overlay"></main>
+
+  <div id="chrome">
+    <!-- The page had 12 h2 beat titles and no h1 at all. This is the real
+         document heading; its small visual size is a style choice, not a
+         semantic one. -->
+    <h1 class="wordmark">Caliber&nbsp;08</h1>
+    <p class="hint">Scroll to explore</p>
+    <span class="crosshair crosshair-h"></span>
+    <span class="crosshair crosshair-v"></span>
+    <!-- Two-tone gauge that draws itself around the object. -->
+    <svg class="ring" id="ring" viewBox="0 0 400 400" aria-hidden="true">
+      <circle class="ring-pale" cx="200" cy="200" r="186" />
+      <circle class="ring-dark" cx="200" cy="200" r="186" />
+    </svg>
+    <!-- Display-scale readout through the technical act. Counts the real mesh
+         total, so the number on screen is the one the scene actually builds. -->
+    <!-- Leader lines: only while the assembly is apart. -->
+    <svg class="glyph" id="glyph" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" />
+      <circle cx="24" cy="24" r="2.4" class="glyph-fill" />
+      <path d="M24 6v4M24 38v4M6 24h4M38 24h4" />
+      <path d="M24 24l8-6" class="glyph-hand" />
+    </svg>
+    <button class="explore" id="explore" type="button" aria-pressed="false">
+      <span class="explore-mark" aria-hidden="true"></span>Hold to explore
+    </button>
+    <div class="leaders" id="leaders" aria-hidden="true"></div>
+    <span class="datum" id="datum" aria-hidden="true"></span>
+    <p class="tally" id="tally" aria-hidden="true"><span id="tally-n">0</span><em>meshes</em></p>
+    <div class="progress"><span id="bar"></span></div>
+  </div>
+
+  <!-- Pure spacer: gives the page its scroll length. -->
+  <div id="scroll-track" aria-hidden="true"></div>
+
+  <!-- The canvas releases here and the page becomes an ordinary document. -->
+  <section id="index">
+    <header class="index-head">
+      <p class="kicker">11 — Index</p>
+      <h2 class="index-title">Every part, counted</h2>
+      <p class="index-note">Fourteen component types, generated at runtime. The mesh column is checked against the count the live scene reports.</p>
+    </header>
+    <div class="index-table" id="index-table"></div>
+  </section>
+
+  <!-- Closing lineup: one geometry, four finishes. -->
+  <section id="finale">
+    <p class="finale-type" aria-hidden="true"><span>Caliber</span><span>08</span></p>
+    <canvas id="finale-canvas" aria-hidden="true"></canvas>
+    <!-- The whole stage is the control: left half steps back, right half forward.
+         A lerping label follows the pointer instead of a fixed button. The
+         finish list below stays visible and focusable so this is still
+         operable by keyboard and screen reader. -->
+    <div class="finale-hit" aria-hidden="true">
+      <button class="finale-half" data-step="-1" type="button" tabindex="-1"></button>
+      <button class="finale-half" data-step="1" type="button" tabindex="-1"></button>
+    </div>
+    <div class="model-cursor" id="model-cursor" aria-hidden="true"><span>Select<br>model</span></div>
+    <div class="finale-ui">
+      <button id="select-model" class="select-model" type="button">
+        <span>Select<br>model</span>
+      </button>
+      <p class="finale-label" id="finale-label" aria-live="polite">Brushed steel</p>
+      <p class="finale-count" id="finale-count" aria-hidden="true">01 / 04</p>
+    </div>
+    <ul class="finale-list" id="finale-list"></ul>
+  </section>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
