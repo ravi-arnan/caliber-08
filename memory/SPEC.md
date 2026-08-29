@@ -38,3 +38,4 @@ The Hinge zoom-out is an active technical transition with animated orbit geometr
 - `frontend/` provides the Emergent runtime launcher while serving the root application source.
 - `backend/` contains only a database-free `/api/health` compatibility service; it has no product data, MongoDB connection, or business logic.
 - Vite accepts deployment hosts dynamically through `ALLOWED_HOSTS`, defaulting to the platform-provided host when unset.
+- `frontend/.env` is a tracked, non-secret deployment contract containing only `VITE_APP_MODE=frontend_only` and `PORT=3000`; both frontend and backend env files are explicitly un-ignored.
