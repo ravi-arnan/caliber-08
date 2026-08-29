@@ -1,0 +1,59 @@
+{
+  "iteration": 6,
+  "mode": "generate",
+  "summary": "6 acceptance criteria covered by 1 new backend test file + 1 new browser check + re-runs of 3 pre-existing regression checks. The repo was restructured this iteration to satisfy the Emergent deployment/runtime contract: /app/backend now holds a minimal FastAPI health-only service (server.py, requirements.txt, backend/.env with only APP_MODE=frontend_only) and /app/frontend holds a thin package.json wrapper (dev/start/build all delegate to the root-level ../vite.config.js and app root ..). Verified: backend/.env is present, is NOT ignored by git despite the global .env/*.env ignore patterns (explicit !backend/.env negation confirmed via git check-ignore), contains only APP_MODE=frontend_only, and needs no Mongo secret. Supervisor shows both backend and frontend RUNNING and returning HTTP 200 on 8001/3000 respectively. `yarn build` from /app/frontend succeeded (delegates to root vite build, emitted dist/index.html + assets in ~2s). The supervisor-served app on :3000 renders the real Caliber 08 scene (window.__scene reports 57 meshes/57 parts, page title contains 'Caliber'), not a placeholder. GET :8001/api/health returns exactly {status:'ok', mode:'frontend_only'} with no MongoDB client/import anywhere in backend (requirements.txt only lists fastapi+uvicorn). vite.config.js derives allowedHosts from ALLOWED_HOSTS env (falls back to `true`/accept-all when unset, which is the current state) -- curl with an arbitrary non-preview production-style Host header returned 200, not 403. Re-ran 3 pre-existing regression checks (scene-reports-57-meshes-and-parts, worn-chapter-intact, public-url-stable-through-full-flow against the live https://blog-552.preview.emergentagent.com URL) plus the new frontend-renders-caliber08-scene check; all passed with zero console/network errors and Index/Finale nav confirmed operable.",
+  "passed": 5,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The original deployment build-context error is resolved (backend/.env present, un-ignored, well-formed, no Mongo secret)",
+      "name": "env-file-inspection",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "cat /app/backend/.env -> 'APP_MODE=frontend_only' (single line, no other keys). git check-ignore -v backend/.env -> matched by rule '.gitignore:9:!backend/.env' i.e. explicitly un-ignored despite earlier .env/.env.*/*.env deny rules in the same file."
+    },
+    {
+      "criterion": "Emergent supervisor paths are now valid (backend/frontend RUNNING, 200 on 8001/3000)",
+      "name": "supervisor-and-port-health-inspection",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "supervisorctl status -> 'backend RUNNING pid 14389' and 'frontend RUNNING pid 14618'. curl -o /dev/null -w '%{http_code}' http://localhost:3000 -> 200. GET http://localhost:8001/api/health -> 200 {\"status\":\"ok\",\"mode\":\"frontend_only\"}."
+    },
+    {
+      "criterion": "The compatibility backend is healthy and database-free",
+      "name": "test_tscheck_health_frontend_only.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "pytest -q /app/backend/tests/test_tscheck_health_frontend_only.py -> 2 passed in 0.31s. GET http://localhost:8001/api/health asserted == {'status':'ok','mode':'frontend_only'} and content-type application/json. requirements.txt contains only fastapi==0.141.1 and uvicorn==0.52.1 (grep for mongo/pymongo/motor in server.py+requirements.txt returned nothing)."
+    },
+    {
+      "criterion": "The deployment frontend wrapper builds and serves the real application",
+      "name": "frontend-renders-caliber08-scene",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "`cd /app/frontend && yarn build` -> '18 modules transformed... built in 2.04s' (delegates to root vite.config.js, no errors). Browser check against supervisor-served http://localhost:3000 waited for window.__scene, found {meshes:57, parts:57}, and document.title contained 'Caliber' -- the real app, not a placeholder."
+    },
+    {
+      "criterion": "Production hostnames are not hardcoded or rejected",
+      "name": "allowed-hosts-header-probe",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "vite.config.js reads ALLOWED_HOSTS env, splits/filters it, and falls back to `allowedHosts: true` (accept-all) when unset -- confirmed no ALLOWED_HOSTS var is currently set. curl -H 'Host: some-production-app.example.com' http://localhost:3000/ -> 200 (not 403). curl -H 'Host: blog-552.preview.emergentagent.com' http://localhost:3000/ -> 200."
+    },
+    {
+      "criterion": "The existing public experience remains intact",
+      "name": "public-url-stable-through-full-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran pre-existing check against https://blog-552.preview.emergentagent.com: window.__scene {meshes:57, parts:57}; scrolled through Case/Dial/Hinge/Worn beats verified via #chapter-id; navigated to Index (index-heading visible) and Finale (finale-selector visible) via nav links; zero console/page errors and zero failed/4xx/5xx network responses across the whole flow."
+    }
+  ],
+  "notes": [
+    "Two additional pre-existing regression checks (scene-reports-57-meshes-and-parts, worn-chapter-intact) were re-run as smoke confirmation that the repo restructure did not regress prior behavior; both passed and are not double-counted as separate criterion checks since they were already covered by iteration 5's matrix.",
+    "6 acceptance criteria in this iteration's matrix were covered by 6 checks total (3 backend/inspection-style verifications for non-UI infra criteria, 1 pytest file, 2 browser checks) -- within the 8-criterion cap, no exploratory artifacts added.",
+    "No MongoDB service dependency was exercised or required anywhere in this iteration despite mongodb running under supervisor globally; backend/server.py and requirements.txt confirmed clean of any DB imports."
+  ]
+}

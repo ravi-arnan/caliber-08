@@ -31,3 +31,10 @@ The Hinge zoom-out is an active technical transition with animated orbit geometr
 - `prefers-reduced-motion` and WebGL failure use a readable static editorial document.
 - Navigation anchors, index filters, and finale controls are keyboard operable and have visible focus states.
 - No authentication or third-party integrations are used.
+
+## Deployment compatibility
+
+- The product remains a client-only Vite/Three.js experience.
+- `frontend/` provides the Emergent runtime launcher while serving the root application source.
+- `backend/` contains only a database-free `/api/health` compatibility service; it has no product data, MongoDB connection, or business logic.
+- Vite accepts deployment hosts dynamically through `ALLOWED_HOSTS`, defaulting to the platform-provided host when unset.
