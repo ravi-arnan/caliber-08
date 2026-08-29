@@ -54,7 +54,6 @@ src/beats.js        the choreography as data — camera, explode, tone, copy
 src/watch.js        procedural geometry; one buildWatch() per finish
 src/main.js         renderer, scroll rig, all per-frame DOM
 src/finale.js       the four-finish lineup (own context, built lazily)
-src/cards.js        stills baked from the same geometry, one per idle callback
 src/components.js   the component index table's data
 src/tokens.css      design tokens — colour derives from --tone
 src/style.css       layout

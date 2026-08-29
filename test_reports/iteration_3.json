@@ -1,0 +1,47 @@
+{
+  "iteration": 3,
+  "mode": "generate",
+  "summary": "3 new browser checks written for this iteration's 4 acceptance criteria (cards-layer removal at hinge/handoff, compact index viewport, clean transition handoff); core index functionality regression verified via 2 re-run existing checks. All 5 check runs passed. No backend exists in this repo (standalone Vite/Three.js frontend, confirmed no server on :8001) so no backend pytest lane applies.",
+  "passed": 5,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The odd floating watch-card transition reported by the user is removed",
+      "name": "no-cards-layer-at-hinge-handoff",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Scrolled to 80%, 99% of the pinned scroll-track (hinge/outro beats) and just past the track into the index section; at each point document.getElementById('cards') was null and document.querySelectorAll('.card').length was 0. Screenshots show a clean handoff directly from the pinned watch scene into the typographic Index with no overlapping rectangular still renders. Zero pageerror/failed network events."
+    },
+    {
+      "criterion": "The component index uses substantially less vertical space",
+      "name": "index-viewport-is-compact",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At 1280x720: index-heading, index-description, index-filter-label and index-filter-all are all visible on load; first .index-card top is within the 720px viewport (cardVisibleInViewport=true) and its rendered height is well under the old 15rem (240px) minimum, consistent with the 10.5rem/12.5rem min-heights in style.css (lines 453/460)."
+    },
+    {
+      "criterion": "The replacement transition remains visually clean",
+      "name": "scroll-track-changes-beat-content (re-run) + no-cards-layer-at-hinge-handoff",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "scroll-track-changes-beat-content re-run: 3 sequential scroll positions produced distinct body text with 0 pageerror and 0 failed requests. no-cards-layer-at-hinge-handoff screenshots at the end-of-track and into-index positions show the sticky nav and Index heading/cards rendering immediately after the pinned scene with no blank gap or overlapping graphics."
+    },
+    {
+      "criterion": "Core index functionality remains intact",
+      "name": "scene-reports-57-meshes-and-parts / index-movement-filter-shows-two (re-run)",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran existing checks by name: scene body text contains 'Component types 14 Meshes 57'; index-movement-filter-shows-two confirms clicking Movement shows 'Showing 2 Movement component types' with Mainplate and Rotor both present in body text."
+    }
+  ],
+  "notes": [
+    "Confirmed via grep that /app/src/main.js and /app/src/watch.js no longer contain a cards.js module reference (only a stray comment mentioning 'cards' historically) and there is no #cards element in index.html.",
+    "Confirmed style.css .index-card min-height is 10.5rem (line 453) and the nth-child(3n+2) variant is 12.5rem (line 460), matching the seed fact of reduced index-card heights.",
+    "No backend exists in this repo (curl to localhost:8001 refused, no /app/backend directory) — standalone Vite/Three.js frontend, consistent with iteration_2's notes; no backend pytest lane applicable.",
+    "Removed a stray .backup scratch file left in /app/.emergent/scripts/checks/ from a prior iteration before writing new checks.",
+    "Public ingress URL https://blog-552.preview.emergentagent.com backs the dev server used for all checks (localhost:3000 proxy)."
+  ]
+}

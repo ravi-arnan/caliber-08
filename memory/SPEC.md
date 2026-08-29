@@ -18,6 +18,8 @@ Caliber 08 is a self-contained editorial product study of a procedural mechanica
 4. Use the component index filters to focus on Structure, Face, Movement, or Band.
 5. Use the finish list, next button, or pointer zones in the finale to compare the four material presets; the `Caliber 08` finale lettering stays behind the watches.
 
+The former floating watch-card transition was removed to keep the hinge-to-index handoff clean. The index intro and cards use a compact layout with roughly 30% less vertical space.
+
 ## Accessibility and fallbacks
 
 - `prefers-reduced-motion` and WebGL failure use a readable static editorial document.

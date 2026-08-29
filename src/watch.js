@@ -104,8 +104,8 @@ function makeHand(length, width, tailLength) {
 /* -------------------------------------------------------------- bracelet */
 
 // Row geometries are identical for both bracelet halves and for every watch
-// built on the page (main + four finale + the card bake = six). Caching them
-// turns 540 link constructions into 15 merged rows.
+// built on the page (main + four finale = five). Caching them turns 450 link
+// constructions into 15 merged rows.
 //
 // These are SHARED. Anything that disposes a watch must skip them — see the
 // `shared` flag and the teardown in cards.js.

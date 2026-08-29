@@ -7,7 +7,6 @@ import { BEATS, beatAt, lerpField, lerpCamera, lerpTilt, lerpCurl, lerpPaper, co
 import { buildWatch, setBraceletCurl, FINISHES } from './watch.js';
 import { COMPONENTS, TOTAL_MESHES } from './components.js';
 import { initFinale } from './finale.js';
-import { createCardBaker, CARD_LAYOUT } from './cards.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -130,12 +129,6 @@ indexFilters.forEach((button) => button.addEventListener('click', () => {
     ? `Showing all ${COMPONENTS.length} component types`
     : `Showing ${visible.length} ${filter} component types`;
 }));
-
-const cardsLayer = document.getElementById('cards');
-cardsLayer.innerHTML = CARD_LAYOUT
-  .map((c, i) => `<img class="card" data-i="${i}" alt="" style="left:${c.left};width:${c.w}px">`)
-  .join('');
-const cardEls = [...cardsLayer.querySelectorAll('.card')];
 
 const copyEls = [...overlay.querySelectorAll('.beat-copy')];
 const charCache = copyEls.map((el) => [...el.querySelectorAll('.ch')]);
@@ -298,8 +291,8 @@ function boot() {
     });
   });
 
-  // Test hook for the MAIN scene only. buildWatch runs six times per load (here,
-  // four in the finale, one for the card bake); writing this inside buildWatch
+  // Test hook for the MAIN scene only. buildWatch runs five times per load (here
+  // and four in the finale); writing this inside buildWatch
   // meant the global reported whichever finished last.
   window.__scene = { meshes: watch.meshCount, parts: watch.parts.length };
 
@@ -336,7 +329,6 @@ function boot() {
     if (i < 0) throw new Error(`unknown beat id: ${id}`);
     return i;
   };
-  const CARD_START = beatIndex('bracelet') + 0.4;
   const RING_START = beatIndex('hinge') + 0.3;
   const TALLY_START = beatIndex('apart');
   const LEADER_START = beatIndex('exploded') - 0.45;
@@ -560,15 +552,6 @@ function boot() {
       document.documentElement.style.setProperty('--ink-flip', String(inkFlip));
     }
 
-    // Cards climb through the closing type section, each at its own rate.
-    const cardT = Math.max(0, Math.min(1, (p * spans - CARD_START) / 3.4));
-    cardEls.forEach((el, i) => {
-      const { rate, w } = CARD_LAYOUT[i];
-      const travel = cardT * rate * (vh + w * 1.6);
-      el.style.transform = `translate3d(0, ${vh - travel}px, 0)`;
-      el.style.opacity = cardT > 0.001 && cardT < 0.999 ? 1 : 0;
-    });
-
     // Ring gauge draws itself around the object through the worn/wall beats.
     const ringT = Math.max(0, Math.min(1, (p * spans - RING_START) / 2.2));
     const C = 2 * Math.PI * 186;
@@ -670,29 +653,6 @@ function boot() {
       document.getElementById('chrome').style.opacity = o;
     },
   });
-
-  // Four extra draw calls and one extra watch — worth deferring until the main
-  // scene is already running.
-  // One still per idle callback: baking all four in one call was a single
-  // multi-second task that requestIdleCallback could not interrupt.
-  const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 600));
-  let baker = null;
-  const bakeStep = () => {
-    try {
-      if (!baker) baker = createCardBaker();
-      const i = baker.index;
-      const url = baker.next();
-      if (cardEls[i]) cardEls[i].src = url;
-      if (!baker.done) idle(bakeStep);
-    } catch (err) {
-      // Cards are decorative. A second WebGL context can legitimately fail on
-      // low-end hardware; the section still reads without them.
-      console.warn('card stills unavailable:', err);
-      try { baker?.abort(); } catch { /* already gone */ }
-      cardsLayer.remove();
-    }
-  };
-  idle(bakeStep);
 
   let resizeTimer = 0;
   addEventListener('resize', () => {

@@ -114,18 +114,16 @@ Measured, not guessed:
   and genuinely stops past it.
 - The finale (renderer, environment bake and 468 meshes) is built on first
   intersection, not at load.
-- The card bake is one still per idle callback. Doing all four in one call was a
-  single multi-second task that `requestIdleCallback` could not interrupt.
 - Bracelet rows are merged (three link meshes into one, two material groups)
-  and their geometry is cached at module level across all six watch builds:
-  117 → 57 meshes, 540 link constructions → 15 merged rows, 194 → 168 draw
+  and their geometry is cached at module level across all five watch builds:
+  117 → 57 meshes, 450 link constructions → 15 merged rows, 194 → 168 draw
   calls per frame.
 - The draw-call win is deliberately smaller than it could be. One material per
   row would give ~74/frame, but the row would lose the polished-centre /
   brushed-outer contrast. Two groups was chosen over the extra 94 calls.
 - **Cached row geometry is shared.** `merged.userData.shared = true` marks it,
-  and `cards.js` skips it on teardown. Any new code that disposes a watch must
-  do the same, or the bracelets vanish from every other watch on the page.
+  so any future disposal code must skip it or the bracelets vanish from every
+  other watch on the page.
 
 ---
 

@@ -51,14 +51,13 @@ body::before {
    backdrop type sits UNDER the canvas so the object occludes it — that
    collision is the move the reference is built on. Copy sits above both. */
 
-#backdrop, #stage, #cards, #overlay, #chrome {
+#backdrop, #stage, #overlay, #chrome {
   position: fixed;
   inset: 0;
   pointer-events: none;
 }
 #backdrop { z-index: 0; }
 #stage    { z-index: 1; }
-#cards    { z-index: 2; }   /* over the letterforms, under the copy */
 #overlay  { z-index: 3; }
 #chrome   { z-index: 4; }
 
@@ -364,7 +363,7 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
   position: relative;
   z-index: 4;
   background: var(--color-paper);
-  padding: 15vh 0 18vh;
+  padding: 9vh 0 11vh;
   isolation: isolate;
 }
 
@@ -374,7 +373,7 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
    it — the header landed 176px right of the column it was supposed to match.
    Using the row's own padding formula makes both sides compute identically. */
 .index-head {
-  margin: 0 0 var(--space-lg);
+  margin: 0 0 var(--space-md);
   padding-inline: max(var(--space-xl), calc((100vw - 68rem) / 2));
   padding-left: calc(max(var(--space-xl), (100vw - 68rem) / 2) + 3.25rem);
 }
@@ -387,7 +386,7 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
   line-height: 1.02;
   letter-spacing: -0.03em;
   color: var(--color-ink-strong);
-  margin: var(--space-sm) 0;
+  margin: var(--space-xs) 0;
   overflow-wrap: anywhere;
 }
 
@@ -399,7 +398,7 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
   align-items: end;
   gap: var(--space-lg);
   margin: 0 max(var(--space-xl), calc((100vw - 68rem) / 2));
-  padding-block: var(--space-md);
+  padding-block: 0.85rem;
   border-top: var(--rule);
   border-bottom: var(--rule);
 }
@@ -451,14 +450,14 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
 }
 .index-card {
   grid-column: span 4;
-  min-height: 15rem;
+  min-height: 10.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--space-lg);
-  padding: var(--space-md);
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
 }
-.index-card:nth-child(3n + 2) { grid-column: span 6; min-height: 18rem; }
+.index-card:nth-child(3n + 2) { grid-column: span 6; min-height: 12.5rem; }
 .index-card:nth-child(5n) { grid-column: span 6; }
 .index-card-head, .index-card-foot { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-sm); }
 .index-card-head { flex-direction: row-reverse; justify-content: space-between; }
@@ -475,7 +474,7 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
   grid-template-columns: 1fr auto;
   align-items: baseline;
   gap: var(--space-md);
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-md);
   background: var(--color-ink-strong);
   color: var(--color-paper);
 }
@@ -532,7 +531,7 @@ body[data-static] .beat-copy[data-lead] .beat-body { margin-inline: 0; }
   .index-row {
     grid-column: span 1;
   }
-  .index-card, .index-card:nth-child(3n + 2), .index-card:nth-child(5n) { grid-column: span 2; min-height: 13rem; }
+  .index-card, .index-card:nth-child(3n + 2), .index-card:nth-child(5n) { grid-column: span 2; min-height: 9rem; }
   .index-card:nth-child(3n + 1) { grid-column: span 1; }
   .index-n, .index-group { font-size: 0.58rem; }
   .index-total { grid-column: span 2; }
@@ -748,24 +747,6 @@ body[data-static] .index-row::after { transform: scaleX(1); }
 body[data-static] .finale-list { align-self: center; }
 
 
-/* ------------------------------------------------------------------- cards
-   Stills rendered from the page's own geometry. Pure vertical travel at four
-   different rates — no drift, no rotation, no scale. */
-
-.card {
-  position: absolute;
-  top: 0;
-  display: block;
-  height: auto;
-  opacity: 0;
-  background: var(--paper-dark);
-}
-
-@media (max-width: 760px) {
-  .card { width: 34vw !important; }
-  .card[data-i="2"] { width: 48vw !important; }
-}
-
 /* -------------------------------------------------------------- ring gauge
    Two-tone arc that draws itself around the object as you scroll. */
 
@@ -790,7 +771,6 @@ body[data-static] .finale-list { align-self: center; }
 /* 22% sat below the noise floor, so the "two-tone" half never registered. */
 .ring-pale { stroke: color-mix(in srgb, var(--color-ink) 40%, transparent); }
 
-body[data-static] #cards,
 body[data-static] .ring { display: none; }
 
 
