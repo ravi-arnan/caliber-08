@@ -17,7 +17,6 @@ const overlay = document.getElementById('overlay');
 const bar = document.getElementById('bar');
 const ring = document.getElementById('ring');
 const tally = document.getElementById('tally');
-const glyph = document.getElementById('glyph');
 const explore = document.getElementById('explore');
 const hint = document.querySelector('.hint');
 const chapter = document.getElementById('chapter');
@@ -334,8 +333,6 @@ function boot() {
   const LEADER_START = beatIndex('exploded') - 0.45;
   const TALLY_LAND = beatIndex('exploded');   // hits 117 exactly where the spec says 117
   const TALLY_END = beatIndex('dial');
-  const GLYPH_IN = beatIndex('case');
-  const GLYPH_OUT = beatIndex('worn');
   const INTERLUDE_FIRST = beatIndex('interlude-numbers');
   const INTERLUDE_LAST = beatIndex('interlude-principle');
 
@@ -625,12 +622,6 @@ function boot() {
     if (!leadVis && exploring) setExploring(false);
 
     hint.style.opacity = p > 0.035 ? 0 : 1;
-    // Section glyph: present through the middle acts, gone at the bookends, so
-    // it reads as a running mark rather than page furniture.
-    const gT = Math.min(1, Math.max(0, (rel - GLYPH_IN) * 1.4))
-             * Math.min(1, Math.max(0, (GLYPH_OUT - rel) * 1.4));
-    glyph.style.opacity = gT * 0.22;
-
     bar.style.transform = `scaleX(${p})`;
 
     renderer.render(scene, camera);

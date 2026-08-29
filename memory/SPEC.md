@@ -20,6 +20,8 @@ Caliber 08 is a self-contained editorial product study of a procedural mechanica
 
 The former floating watch-card transition was removed to keep the hinge-to-index handoff clean. The index intro and cards use a compact layout with roughly 30% less vertical space.
 
+The decorative miniature watch glyph was removed from the scroll chrome; only functional navigation and technical indicators remain.
+
 ## Accessibility and fallbacks
 
 - `prefers-reduced-motion` and WebGL failure use a readable static editorial document.

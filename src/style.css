@@ -851,30 +851,6 @@ body[data-static] .tally { display: none; }
 body[data-static] .leaders, body[data-static] .datum { display: none; }
 
 
-/* ------------------------------------------------------------- section glyph
-   A dial mark that recurs beside the copy column at low opacity. It carries no
-   information — it is a continuity anchor across compositions that otherwise
-   share nothing. */
-
-.glyph {
-  position: absolute;
-  left: var(--space-xl);
-  top: 22vh;
-  width: 3.6rem;
-  height: 3.6rem;
-  fill: none;
-  stroke: var(--color-ink);
-  stroke-width: 1.4;
-  vector-effect: non-scaling-stroke;
-  opacity: 0;
-}
-.glyph .glyph-fill { fill: var(--color-ink); stroke: none; }
-.glyph .glyph-hand { stroke-width: 2; stroke-linecap: round; }
-
-@media (max-width: 900px) { .glyph { display: none; } }
-body[data-static] .glyph { display: none; }
-
-
 /* --------------------------------------------------------- explore control
    The one interactive affordance on the track. Holding it lifts the collision
    suppression on the leader labels, so every component is named at once. */
