@@ -24,6 +24,8 @@ The decorative miniature watch glyph was removed from the scroll chrome; only fu
 
 The two-tone circular gauge begins at Hinge, completes a full 360° circumference exactly at 10 — Worn, and fades smoothly during the following beat without clipping the viewport.
 
+The Hinge zoom-out is an active technical transition with animated orbit geometry, measurement axes, and “Closing the loop” copy. All non-lead chapter copy uses adaptive light or dark material panels so text remains readable over every watch angle and tonal state, including Case and Dial.
+
 ## Accessibility and fallbacks
 
 - `prefers-reduced-motion` and WebGL failure use a readable static editorial document.

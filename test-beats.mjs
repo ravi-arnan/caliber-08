@@ -94,6 +94,9 @@ for (const b of BEATS) {
 const interlude = BEATS.filter((b) => b.break);
 assert.equal(interlude.length, 2, 'the model-free interlude must span two beats');
 assert.ok(interlude.every((b) => b.modelOpacity === 0), 'interlude beats must hide the watch');
+const hinge = BEATS.find((b) => b.id === 'hinge');
+assert.equal(hinge.title, 'Closing the loop', 'hinge must carry its technical transition copy');
+assert.equal(hinge.specs.length, 3, 'hinge must expose three measured facts');
 // The beat ids main.js derives its card/ring windows from must exist.
 for (const id of ['bracelet', 'hinge']) {
   assert.ok(BEATS.some((b) => b.id === id), `main.js derives a window from missing beat "${id}"`);

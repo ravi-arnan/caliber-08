@@ -1,0 +1,60 @@
+{
+  "iteration": 5,
+  "mode": "generate",
+  "summary": "6 acceptance criteria for this iteration covered with 7 browser checks (Hinge zoom-out transition, Dial dark-panel readability + tally fade, Case/light-scene panel readability, adaptive-panel layout integrity, Worn ring regression x3, and full public-URL flow with 57 meshes/parts and zero console/network errors). No backend exists in this repo (standalone Vite/Three.js frontend, confirmed again this iteration: no /app/backend directory, supervisor backend/frontend program blocks reference nonexistent dirs, port 8001 unreachable) so no pytest lane applies. One timing-sensitive assertion in the pre-existing ring-fades-only-after-worn check was flaky (read data-opacity once immediately after a scrollTo jump, before GSAP's 0.85s scrub caught up) and was hardened with a waitForFunction poll; it now passes deterministically on rerun. All 7 checks pass.",
+  "passed": 7,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The formerly empty 21 — Hinge zoom-out is engaging and informative",
+      "name": "hinge-zoom-out-is-engaging",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At beat 21 (#chapter-id='21'), beat-copy-hinge title reads 'Closing the loop' on data-panel='light'; hinge-measurements shows exactly 3 facts (Ø 38 mm, 30 rows, 360° arc); .hinge-diagram contains 1 hinge-orbit-outer, 1 hinge-orbit-inner, 1 hinge-axis-x, 1 hinge-axis-y; specs list contains Open radius 34.0, Closed radius 1.12, Arc 360; #stage (the zoomed-out watch) is visible."
+    },
+    {
+      "criterion": "Dial copy is clearly readable",
+      "name": "dial-copy-readable-on-dark-panel",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At beat 15 (#chapter-id='15'), beat-copy-dial has data-panel='dark', computed opacity 1 (>=0.98), background color(srgb ~0.15,0.15,0.17) is dark (luma<60), .beat-title and .beat-body colors are light (oklch 96% -> luma~245), and #tally computed opacity is <=0.02 (already faded before Dial per TALLY_END=dial-0.5)."
+    },
+    {
+      "criterion": "Case and other light-scene chapter copy is clearly readable",
+      "name": "case-copy-readable-on-light-panel",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At beat 2 (#chapter-id='02'), beat-copy-case has data-panel='light', computed opacity 1, background color(srgb ~0.94..) is light (luma>180), .beat-title and .beat-body colors are dark ink (oklch 14% -> luma~36, below the 90/120 dark-text thresholds)."
+    },
+    {
+      "criterion": "Adaptive panels preserve layout and interactions",
+      "name": "adaptive-panels-preserve-layout",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Checked left-aligned (beat-copy-case, align=left), right-aligned (beat-copy-bezel, align=right) and centered (beat-copy-hinge, align=center) panels at a 1280x720 viewport: each bounding box stayed fully within the viewport (no negative x/y, no overflow beyond width/height), each populated .specs block had non-empty legible text, and the primary nav link (nav-index-link) passed a Playwright trial click (not obstructed by any panel)."
+    },
+    {
+      "criterion": "Previously corrected Worn ring remains intact",
+      "name": "ring-completes-at-worn / ring-fades-only-after-worn / ring-not-clipped-by-viewport / worn-chapter-intact",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran all 4 pre-existing Worn-ring regression checks: at Worn, #ring data-progress='1.000' and data-opacity='1.000' with dark(62%)+pale(38%) dash summing to the full circumference (1168.66px); opacity stays 1 through Worn/Clasp boundary then eases strictly downward (1 -> mid-Wall value in (0,1) -> lower late-Wall value) after Worn, never before; ring bounding box fully inside both desktop (1280x720) and mobile (390x844) viewports; #chapter-label='Worn', #stage rendered, zero console/network errors during the flow."
+    },
+    {
+      "criterion": "Public experience remains stable",
+      "name": "public-url-stable-through-full-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Ran against https://blog-552.preview.emergentagent.com: window.__scene reports {meshes:57, parts:57}; scrolled to Case(02)/Dial(15)/Hinge(21)/Worn(23) beats each confirmed via #chapter-id; navigated to Index (index-heading visible) and Finale (finale-selector visible) sections via nav links; zero console/page errors and zero failed/4xx/5xx network responses recorded across the whole flow."
+    }
+  ],
+  "notes": [
+    "No backend exists in this repo: /app/backend and /app/frontend directories are absent (root-level Vite/Three.js app at /app), supervisor's backend/frontend program blocks reference nonexistent chdir targets and are FATAL, curl to :8001 refuses. The frontend is served by a manually-started vite dev server on :3000 (confirmed 200 OK) which is what all browser checks exercised. This matches every prior iteration's confirmed spec_deviation, so no pytest backend lane applies to any of this iteration's 6 criteria.",
+    "Flaky-then-fixed: ring-fades-only-after-worn (a check from iteration 4, re-verified for this iteration's 'Previously corrected Worn ring remains intact' criterion) failed twice consecutively reading #ring's data-opacity via a single getAttribute() call taken immediately after window.scrollTo, before GSAP's scrub(0.85) tween had caught up to the jumped scroll position -- a test-authoring timing gap, not an app regression (data-progress, which the app also updates per-frame, was already correct at 1.000 in the same reads). Hardened with page.waitForFunction polls for the opacity to actually change before reading it; reran clean twice after the fix. Classified as flaky/test-fix, not a bug, since the underlying ring-fade behavior (geometry complete, opacity eases 1->0 only after Worn) was confirmed correct once measured at the right time.",
+    "Color-readability assertions computed perceptual luma from getComputedStyle() output, handling all three color serializations Chromium returned in this app (oklch(...), color(srgb ...), and plain rgb()) since color-mix()-derived panel backgrounds/text serialize differently depending on the source color space.",
+    "6 criteria from the briefing's acceptance_matrix were exercised with 7 named checks (the Worn-ring regression criterion reused 4 pre-existing checks from iteration 4 rather than duplicating new artifacts, since they already cover progress/opacity/circumference/clipping/chapter-intactness exactly as this iteration's criterion requires)."
+  ]
+}

@@ -168,6 +168,100 @@ body::before {
 }
 .beat-copy[data-lead] .beat-body { margin-inline: auto; }
 
+/* Copy panels adapt independently of the global tone ramp. This avoids the
+   split-second contrast ambiguity near the ink flip and isolates text from
+   bright metal highlights without turning every scene into a card layout. */
+.beat-copy[data-panel] {
+  --copy-ink: oklch(14% 0.018 260);
+  --copy-mute: color-mix(in srgb, var(--copy-ink) 88%, transparent);
+  --copy-rule: color-mix(in srgb, var(--copy-ink) 16%, transparent);
+  padding: 1rem 1.1rem;
+  margin-left: -1.1rem;
+  border: 1px solid var(--copy-rule);
+  background: color-mix(in srgb, oklch(96% 0.012 90) 94%, transparent);
+  box-shadow: 0 1.2rem 3.5rem color-mix(in srgb, oklch(14% 0.018 260) 10%, transparent);
+  backdrop-filter: blur(14px) saturate(120%);
+  isolation: isolate;
+}
+.beat-copy[data-panel='dark'] {
+  --copy-ink: oklch(96% 0.012 90);
+  background: color-mix(in srgb, oklch(15% 0.025 260) 94%, transparent);
+}
+.beat-copy[data-align='right'][data-panel] { margin-left: 0; margin-right: -1.1rem; }
+.beat-copy[data-align='center'][data-panel] { margin-inline: 0; }
+.beat-copy[data-panel] .beat-title,
+.beat-copy[data-panel] .specs dd { color: var(--copy-ink); }
+.beat-copy[data-panel] .beat-body { font-weight: 500; }
+.beat-copy[data-panel] .kicker,
+.beat-copy[data-panel] .beat-body,
+.beat-copy[data-panel] .specs dt { color: var(--copy-mute); }
+.beat-copy[data-panel] .specs { border-top: 1px solid var(--copy-rule); }
+.beat-copy[data-panel] > .kicker,
+.beat-copy[data-panel] > .beat-title,
+.beat-copy[data-panel] > .beat-body,
+.beat-copy[data-panel] > .specs,
+.beat-copy[data-panel] > .hinge-measure { z-index: 1; }
+
+/* Hinge is a deliberate decompression beat: the watch recedes while a measured
+   orbital drawing explains the bracelet's transition from line to circle. */
+.beat-copy[data-hinge] {
+  width: min(32rem, 76vw);
+  overflow: visible;
+}
+.hinge-diagram {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(31rem, 72vw);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  opacity: 0.34;
+  z-index: 0;
+}
+.hinge-orbit, .hinge-axis { position: absolute; display: block; }
+.hinge-orbit {
+  inset: 8%;
+  border: 1px solid var(--copy-ink);
+  border-radius: 50%;
+  animation: hinge-orbit 9s linear infinite;
+}
+.hinge-orbit::before {
+  content: '';
+  position: absolute;
+  top: -0.23rem;
+  left: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: var(--copy-ink);
+}
+.hinge-orbit-inner {
+  inset: 23%;
+  border-style: dashed;
+  animation-duration: 13s;
+  animation-direction: reverse;
+}
+.hinge-axis { background: var(--copy-rule); }
+.hinge-axis-x { left: 3%; right: 3%; top: 50%; height: 1px; }
+.hinge-axis-y { top: 3%; bottom: 3%; left: 50%; width: 1px; }
+.hinge-measure {
+  position: absolute;
+  left: 50%;
+  bottom: -4.2rem;
+  translate: -50% 0;
+  display: flex;
+  gap: var(--space-lg);
+  width: max-content;
+  color: var(--copy-mute);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+@keyframes hinge-orbit { to { transform: rotate(360deg); } }
+
 /* Two full beats of model-free editorial pacing. The absence of the object is
    intentional: the type and measured facts become the visual subject. */
 .beat-copy[data-break] {
@@ -304,6 +398,7 @@ body::before {
   .beat-copy[data-align='right'] .specs { justify-content: flex-start; }
   .beat-body { max-width: none; }
   .hint { display: none; }
+  .beat-copy[data-panel] { margin-inline: 0; }
 }
 
 /* ---------------------------------------------- reduced motion / no-canvas

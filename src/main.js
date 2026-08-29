@@ -66,16 +66,32 @@ const backdropMarkup = (b) => Array.isArray(b.backdrop)
       .join('')}</span>`
   : esc(b.backdrop);
 
+const hingeDiagram = (id) => id === 'hinge'
+  ? `<div class="hinge-diagram" aria-hidden="true">
+      <span class="hinge-orbit hinge-orbit-outer"></span>
+      <span class="hinge-orbit hinge-orbit-inner"></span>
+      <span class="hinge-axis hinge-axis-x"></span>
+      <span class="hinge-axis hinge-axis-y"></span>
+    </div>
+    <p class="hinge-measure" data-testid="hinge-measurements"><span>Ø 38 mm</span><span>30 rows</span><span>360° arc</span></p>`
+  : '';
+
 /** Copy blocks, one per beat. Built from BEATS so the text lives in one place. */
 function renderCopy() {
-  overlay.innerHTML = BEATS.map((b, i) => b.title
-    ? `<article class="beat-copy" data-i="${i}" data-align="${b.align}" data-testid="beat-copy-${b.id}" ${i === 0 ? 'data-lead' : ''} ${b.break ? 'data-break' : ''}>
+  overlay.innerHTML = BEATS.map((b, i) => {
+    const panel = i > 0 && !b.break && b.title
+      ? `data-panel="${b.paper >= 0.58 ? 'dark' : 'light'}"`
+      : '';
+    return b.title
+    ? `<article class="beat-copy" data-i="${i}" data-align="${b.align}" data-testid="beat-copy-${b.id}" ${i === 0 ? 'data-lead' : ''} ${b.break ? 'data-break' : ''} ${b.id === 'hinge' ? 'data-hinge' : ''} ${panel}>
+      ${hingeDiagram(b.id)}
       ${b.kicker ? `<p class="kicker" data-testid="beat-kicker-${b.id}">${esc(b.kicker)}</p>` : ''}
       <h2 class="beat-title" data-testid="beat-title-${b.id}">${glyphs(b.title)}</h2>
       <p class="beat-body" data-testid="beat-body-${b.id}">${esc(b.body)}</p>
       ${specRows(b.specs, b.id)}
     </article>`
-    : `<article class="beat-copy" data-i="${i}" data-empty></article>`).join('');
+    : `<article class="beat-copy" data-i="${i}" data-empty></article>`;
+  }).join('');
 
   backdrop.innerHTML = BEATS
     .map((b, i) => `<span class="backdrop-word" data-i="${i}">${backdropMarkup(b)}</span>`)
@@ -336,7 +352,7 @@ function boot() {
   const TALLY_START = beatIndex('apart');
   const LEADER_START = beatIndex('exploded') - 0.45;
   const TALLY_LAND = beatIndex('exploded');   // hits 117 exactly where the spec says 117
-  const TALLY_END = beatIndex('dial');
+  const TALLY_END = beatIndex('dial') - 0.5;
   const INTERLUDE_FIRST = beatIndex('interlude-numbers');
   const INTERLUDE_LAST = beatIndex('interlude-principle');
 
