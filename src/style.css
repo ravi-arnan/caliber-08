@@ -169,6 +169,25 @@ body::before {
 }
 .beat-copy[data-lead] .beat-body { margin-inline: auto; }
 
+/* Two full beats of model-free editorial pacing. The absence of the object is
+   intentional: the type and measured facts become the visual subject. */
+.beat-copy[data-break] {
+  bottom: auto;
+  top: 50%;
+  width: min(58rem, 82vw);
+  translate: -50% -50%;
+}
+.beat-copy[data-break] .beat-title {
+  max-width: 13ch;
+  margin-inline: auto;
+  font-size: clamp(3.6rem, 9vw, 8.5rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+}
+.beat-copy[data-break] .beat-body { max-width: 48ch; margin-inline: auto; }
+.beat-copy[data-break] .specs { margin-inline: auto; }
+
 .specs {
   display: flex;
   flex-wrap: wrap;
@@ -265,9 +284,10 @@ body::before {
 }
 
 /* ------------------------------------------------------------ scroll track
-   Pure spacer. 24 beats over 3800vh — 23 spans of ~165vh each. */
+   A shorter track makes each wheel or touch gesture advance the mechanism with
+   more authority. The two interlude spans remain roughly one viewport each. */
 
-#scroll-track { height: 3800vh; }
+#scroll-track { height: 2700vh; }
 
 /* --------------------------------------------------------------- responsive */
 
@@ -558,6 +578,7 @@ body[data-static] #index { padding-top: 4vh; }
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
+  z-index: 0;
 }
 
 .finale-count {
@@ -572,6 +593,8 @@ body[data-static] #index { padding-top: 4vh; }
   width: min(100%, 96rem);
   height: min(78vh, 46rem);
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
 /* Above .finale-hit (z-index 3). The half-screen zones are a pointer

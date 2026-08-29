@@ -1,0 +1,45 @@
+{
+  "iteration": 2,
+  "mode": "generate",
+  "summary": "4 new browser checks written for the 4 acceptance criteria of this iteration (finale z-order, model-free interlude break, faster/2700vh scroll, existing-flows regression); regression coverage reused 4 existing checks by re-run. All 8 check runs passed.",
+  "passed": 8,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The finale Caliber 08 lettering sits behind the four watches",
+      "name": "finale-watches-occlude-lettering",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "In the finale section, computed z-index of #finale-canvas (1) > .finale-type (0), confirming the canvas/watch layer stacks above the CALIBER/08 lettering. Screenshot shows watches occluding the letterforms."
+    },
+    {
+      "criterion": "A model-free editorial break appears between assembly and movement",
+      "name": "interlude-break-between-assembly-and-movement",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Swept scroll fractions; found beat-copy-interlude-numbers ('57 meshes. Zero shortcuts.') and beat-copy-interlude-principle ('Complexity, made legible.') each reaching opacity > 0.85 in increasing scroll order, with window.__scene.modelOpacity < 0.01 at both peaks (model hidden), and beat-copy-assembled ('And back together') still opacity > 0.3 shortly before the numbers interlude, confirming the break sits after assembled."
+    },
+    {
+      "criterion": "Scrolling feels more responsive",
+      "name": "scroll-track-is-2700vh-with-fast-scrub",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "#scroll-track rendered height / innerHeight = ~27 (2700vh for 27 beats). A single scroll jump to 50% updated the live #chapter beat dataset within <1.5s (well under the old scrub duration), consistent with the 0.85s scrub smoothing."
+    },
+    {
+      "criterion": "Existing core flows remain intact",
+      "name": "hero-loads-with-nav-and-scene / scene-reports-57-meshes-and-parts / index-movement-filter-shows-two / finale-next-finish-changes-to-graphite (re-run)",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran 4 pre-existing checks by name (no script changes): hero renders with nav, scene reports 'Component types 14 Meshes 57' on scroll, Index Movement filter shows 'Showing 2 Movement component types' (Mainplate, Rotor), and finale Next finish button changes selection to Graphite (02/04). All passed with zero pageerror/failed network events."
+    }
+  ],
+  "notes": [
+    "No backend API exists in this repo (standalone Vite/Three.js frontend per spec_deviations); no backend pytest lane was applicable.",
+    "The 'existing core flows' criterion was verified by re-running 4 previously-authored browser checks by name (free re-run) rather than duplicating new artifacts, since those checks already cover hero/nav, 57 meshes/parts scene reporting, index filtering, and finale finish selection.",
+    "Public ingress URL https://blog-552.preview.emergentagent.com backing the dev server was exercised for all checks."
+  ]
+}

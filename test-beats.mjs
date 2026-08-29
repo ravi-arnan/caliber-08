@@ -84,13 +84,16 @@ for (const b of BEATS) {
   assert.ok(['left', 'center', 'right'].includes(b.align), `beat ${b.id} bad align: ${b.align}`);
   assert.ok(['open', 'shut', 'flat'].includes(b.curl), `beat ${b.id} bad curl: ${b.curl}`);
   assert.ok(Array.isArray(b.tilt) && b.tilt.length === 3, `beat ${b.id} tilt must be xyz`);
-  for (const k of ['explode', 'handSpin', 'paper', 'dust']) {
+  for (const k of ['explode', 'handSpin', 'paper', 'dust', 'modelOpacity']) {
     assert.ok(Number.isFinite(b[k]), `beat ${b.id}.${k} must be a finite number`);
   }
-  for (const k of ['paper', 'dust']) {
+  for (const k of ['paper', 'dust', 'modelOpacity']) {
     assert.ok(b[k] >= 0 && b[k] <= 1, `beat ${b.id}.${k} must be within 0..1`);
   }
 }
+const interlude = BEATS.filter((b) => b.break);
+assert.equal(interlude.length, 2, 'the model-free interlude must span two beats');
+assert.ok(interlude.every((b) => b.modelOpacity === 0), 'interlude beats must hide the watch');
 // The beat ids main.js derives its card/ring windows from must exist.
 for (const id of ['bracelet', 'hinge']) {
   assert.ok(BEATS.some((b) => b.id === id), `main.js derives a window from missing beat "${id}"`);

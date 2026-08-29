@@ -24,15 +24,15 @@ either with `URL=… CHROME=… node test-meshes.mjs`.
 
 | | |
 |---|---|
-| Beats | 24 |
-| Scroll length | 3800vh (~41 screens), 23 spans of ~165vh |
+| Beats | 27 |
+| Scroll length | 2700vh (~27 screens), 26 spans of ~104vh |
 | Meshes in the main scene | 57, from 14 component types |
 | Entries in `parts` | 57 — one per mesh, see the note below |
 | External assets | none |
 
 The page runs three sections:
 
-1. **The pinned track** (`#scroll-track`) — 24 beats scrubbing a fixed canvas.
+1. **The pinned track** (`#scroll-track`) — 27 beats scrubbing a fixed canvas, including a two-beat model-free editorial interlude.
 2. **The component index** (`#index`) — the canvas fades out and the page becomes
    an ordinary document: a full-bleed table of every component and its mesh count.
 3. **The finale** (`#finale`) — the same geometry cast in four metals, with a

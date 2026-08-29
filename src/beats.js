@@ -113,6 +113,28 @@ export const BEATS = [
     specs: [], backdrop: 'ASSEMBLED',
   },
   {
+    id: 'interlude-numbers', align: 'center', paper: 1.0, dust: 0,
+    camera: { pos: [0, 0, 7.2], target: [0, 0, 0] },
+    explode: 0, material: 'graphite', handSpin: 2.1,
+    modelOpacity: 0, break: true,
+    kicker: 'Interlude — The numbers',
+    title: '57 meshes. Zero shortcuts.',
+    body: 'Fourteen component types, built from primitives at runtime. The complexity is real; the presentation stays precise.',
+    specs: [['Component types', '14'], ['Imported assets', '0']],
+    backdrop: '57',
+  },
+  {
+    id: 'interlude-principle', align: 'center', paper: 1.0, dust: 0,
+    camera: { pos: [0, 0, 7.2], target: [0, 0, 0] },
+    explode: 0, material: 'graphite', handSpin: 2.1,
+    modelOpacity: 0, break: true,
+    kicker: 'Interlude — The principle',
+    title: 'Complexity, made legible.',
+    body: 'A 38 millimetre case, a 9.4 millimetre profile, and a 72-hour reserve—reduced to the facts that matter.',
+    specs: [['Diameter', '38 mm'], ['Profile', '9.4 mm'], ['Reserve', '72 h']],
+    backdrop: 'MEASURED',
+  },
+  {
     id: 'movement', align: 'left', paper: 1.0, dust: 0.75,
     camera: { pos: [-1.2, -0.4, 3.0], target: [0, -0.1, 0] },
     explode: 0.18, material: 'graphite', handSpin: 2.6,
@@ -272,6 +294,8 @@ for (const b of BEATS) {
   if (b.tilt === undefined) b.tilt = [0, 0, 0];
   if (b.paper === undefined) b.paper = 0;   // 0 = near-white, 1 = near-black
   if (b.dust === undefined) b.dust = 0;
+  if (b.modelOpacity === undefined) b.modelOpacity = 1;
+  if (b.break === undefined) b.break = false;
   if (b.align === undefined) b.align = 'left';
 }
 

@@ -71,7 +71,7 @@ const backdropMarkup = (b) => Array.isArray(b.backdrop)
 /** Copy blocks, one per beat. Built from BEATS so the text lives in one place. */
 function renderCopy() {
   overlay.innerHTML = BEATS.map((b, i) => b.title
-    ? `<article class="beat-copy" data-i="${i}" data-align="${b.align}" data-testid="beat-copy-${b.id}" ${i === 0 ? 'data-lead' : ''}>
+    ? `<article class="beat-copy" data-i="${i}" data-align="${b.align}" data-testid="beat-copy-${b.id}" ${i === 0 ? 'data-lead' : ''} ${b.break ? 'data-break' : ''}>
       ${b.kicker ? `<p class="kicker" data-testid="beat-kicker-${b.id}">${esc(b.kicker)}</p>` : ''}
       <h2 class="beat-title" data-testid="beat-title-${b.id}">${glyphs(b.title)}</h2>
       <p class="beat-body" data-testid="beat-body-${b.id}">${esc(b.body)}</p>
@@ -284,6 +284,20 @@ function boot() {
   const watch = buildWatch();
   scene.add(watch.root);
 
+  // The editorial interlude removes the object without removing the canvas.
+  // Preserve each material's original transparency so the crystal returns with
+  // its intended opacity after the watch fades back into the next chapter.
+  const modelMaterials = new Map();
+  watch.root.traverse((node) => {
+    if (!node.isMesh) return;
+    const materials = Array.isArray(node.material) ? node.material : [node.material];
+    materials.forEach((material) => {
+      if (material && !modelMaterials.has(material)) {
+        modelMaterials.set(material, { opacity: material.opacity, transparent: material.transparent });
+      }
+    });
+  });
+
   // Test hook for the MAIN scene only. buildWatch runs six times per load (here,
   // four in the finale, one for the card bake); writing this inside buildWatch
   // meant the global reported whichever finished last.
@@ -311,7 +325,7 @@ function boot() {
       trigger: '#scroll-track',
       start: 'top top',
       end: 'bottom bottom',
-      scrub: 1.4,
+      scrub: 0.85,
     },
   });
 
@@ -330,6 +344,8 @@ function boot() {
   const TALLY_END = beatIndex('dial');
   const GLYPH_IN = beatIndex('case');
   const GLYPH_OUT = beatIndex('worn');
+  const INTERLUDE_FIRST = beatIndex('interlude-numbers');
+  const INTERLUDE_LAST = beatIndex('interlude-principle');
 
   // One leader per labelled component, built once.
   leadersEl.innerHTML = watch.labelled
@@ -367,6 +383,7 @@ function boot() {
   let rafId = 0;
   let running = false;
   let lastTone = '';
+  let lastModelOpacity = -1;
   let lastChapter = -1;
   let inkFlip = 0;
   let lastTally = -1;
@@ -441,6 +458,37 @@ function boot() {
     watch.root.rotation.x = tiltX;
     watch.root.rotation.y = tiltY + Math.sin(elapsed * 0.22) * 0.028;
     watch.root.rotation.z = tiltZ;
+
+    // Keep the watch completely absent for roughly two viewport-length spans,
+    // with short mechanical fades before and after the editorial interruption.
+    const timelinePosition = p * (BEATS.length - 1);
+    const fadeOutStart = INTERLUDE_FIRST - 1;
+    const hiddenStart = INTERLUDE_FIRST - 0.45;
+    const hiddenEnd = INTERLUDE_LAST + 0.45;
+    const fadeInEnd = INTERLUDE_LAST + 1;
+    let modelOpacity = 1;
+    if (timelinePosition >= fadeOutStart && timelinePosition < hiddenStart) {
+      const t = (timelinePosition - fadeOutStart) / (hiddenStart - fadeOutStart);
+      modelOpacity = 1 - t * t * (3 - 2 * t);
+    } else if (timelinePosition >= hiddenStart && timelinePosition <= hiddenEnd) {
+      modelOpacity = 0;
+    } else if (timelinePosition > hiddenEnd && timelinePosition <= fadeInEnd) {
+      const t = (timelinePosition - hiddenEnd) / (fadeInEnd - hiddenEnd);
+      modelOpacity = t * t * (3 - 2 * t);
+    }
+    watch.root.visible = modelOpacity > 0.005;
+    window.__scene.modelOpacity = modelOpacity;
+    if (Math.abs(modelOpacity - lastModelOpacity) > 0.002) {
+      for (const [material, original] of modelMaterials) {
+        const transparent = original.transparent || modelOpacity < 0.999;
+        if (material.transparent !== transparent) {
+          material.transparent = transparent;
+          material.needsUpdate = true;
+        }
+        material.opacity = original.opacity * modelOpacity;
+      }
+      lastModelOpacity = modelOpacity;
+    }
 
     dust.material.opacity = lerpField(p, 'dust') * 0.55;
     dust.rotation.y = elapsed * 0.045;
