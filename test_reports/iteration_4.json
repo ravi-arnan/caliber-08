@@ -1,0 +1,46 @@
+{
+  "iteration": 4,
+  "mode": "generate",
+  "summary": "4 new browser checks written for the 4 acceptance criteria of this iteration (ring completes 360deg exactly at Worn, ring fades only after Worn, ring not clipped by viewport at desktop/mobile, Worn chapter remains intact). All 4 checks passed after one selector fix.",
+  "passed": 4,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The circular gauge completes a full 360 degrees at 10 — Worn",
+      "name": "ring-completes-at-worn",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Scrolled #scroll-track to p=23/26 (exact Worn beat index). #ring data-progress='1.000' and data-opacity='1.000'; computed opacity ~1; .ring-dark stroke-dasharray + .ring-pale stroke-dasharray summed to the full circumference (2*pi*186=1168.66), with dark segment ~62% and pale segment ~38%, i.e. no missing arc."
+    },
+    {
+      "criterion": "The completed circle fades only after Worn",
+      "name": "ring-fades-only-after-worn",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At beat 22 (before Worn) data-progress != '1.000' while data-opacity='1.000' (partially drawn, still opaque). At beat 23 (Worn) data-progress='1.000' and data-opacity='1.000'. At ringRel=24.3 (mid Wall) data-progress stayed '1.000' while data-opacity dropped to a value strictly between 0 and 1. At ringRel=24.7 (near RING_FADE_END=24.75) data-progress stayed '1.000' while data-opacity was lower than the mid-Wall reading, confirming geometry stays complete while opacity eases toward zero only after Worn."
+    },
+    {
+      "criterion": "The circle is not clipped by the viewport",
+      "name": "ring-not-clipped-by-viewport",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At the exact Worn beat, #ring bounding box was fully inside both a 1280x720 desktop viewport and a 390x844 mobile viewport (box.x>=0, box.y>=0, box.x+width<=viewportWidth, box.y+height<=viewportHeight in both cases), with non-zero rendered width confirming it is actually drawn, not just present in the DOM."
+    },
+    {
+      "criterion": "The Worn chapter remains visually and functionally intact",
+      "name": "worn-chapter-intact",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "At the Worn beat: #chapter-label text is 'Worn', #stage (watch canvas host) is visible with non-zero bounding box, #overlay copy includes 'It closes into a circle' (closed/curled-shut bracelet copy), #ring is complete/opaque, zero console/page errors and zero HTTP 4xx/5xx or failed requests were recorded during the full flow."
+    }
+  ],
+  "notes": [
+    "No backend API exists in this repo (standalone Vite/Three.js frontend per prior iterations' confirmed spec_deviations; curl to localhost:8001 refused again this iteration) so no backend pytest lane applies to any of this iteration's criteria \u2014 all 4 are UI/render-state criteria fully exercised via #ring's data-progress/data-opacity attributes and DOM state.",
+    "Beat math used to target exact scroll positions: BEATS has 27 entries (spans = 26), with ids ...bracelet, hinge(21), clasp(22), worn(23), wall(24)... RING_START=hinge, RING_COMPLETE=worn, RING_FADE_END=wall+0.75=24.75, matching seed facts. Scroll position was computed as trackTop + p*(trackHeight-viewportHeight) to land on an exact fractional beat via #scroll-track's ScrollTrigger('top top'/'bottom bottom') mapping, then Playwright's auto-retrying expect() was used to await GSAP's 0.85s scrub settling (no manual sleeps).",
+    "One in-flight fix during authoring: worn-chapter-intact initially asserted '#chapter-label' text as '10 — Worn' and '#chapter-id' as '10'; the live DOM actually renders the numeric beat index (23) in #chapter-id and only the title ('Worn') in #chapter-label, so the assertion was corrected to match real markup rather than an assumed format. Re-run after the fix passed cleanly.",
+    "Public ingress URL https://blog-552.preview.emergentagent.com backs the localhost:3000 dev server exercised by all 4 checks (form_factor: desktop, plus one mobile-viewport pass inside ring-not-clipped-by-viewport per the criterion's own mobile requirement)."
+  ]
+}

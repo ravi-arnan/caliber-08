@@ -84,24 +84,26 @@ function renderCopy() {
 renderCopy();
 
 const slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-document.getElementById('index-table').innerHTML = COMPONENTS.map((c) => `
-  <article class="index-row index-card" data-group="${esc(c.group)}" data-testid="index-card-${slug(c.name)}">
-    <div class="index-card-head">
-      <span class="index-n" data-testid="index-number-${slug(c.name)}">${esc(c.n)}</span>
-      <span class="index-plus" aria-hidden="true">+</span>
-      <span class="index-group" data-testid="index-group-${slug(c.name)}">${esc(c.group)}</span>
-    </div>
+document.getElementById('index-table').innerHTML = `
+  <div class="index-columns" aria-hidden="true">
+    <span data-testid="index-column-number">No.</span>
+    <span data-testid="index-column-component">Component</span>
+    <span data-testid="index-column-group">Assembly</span>
+    <span data-testid="index-column-method">Method</span>
+    <span data-testid="index-column-meshes">Mesh count</span>
+  </div>` + COMPONENTS.map((c) => `
+  <div class="index-row index-card" data-group="${esc(c.group)}" data-testid="index-card-${slug(c.name)}">
+    <span class="index-n" data-testid="index-number-${slug(c.name)}">${esc(c.n)}</span>
     <span class="index-name" data-testid="index-name-${slug(c.name)}">${esc(c.name)}</span>
-    <div class="index-card-foot">
-      <span class="index-detail">Runtime geometry</span>
-      <span class="index-meshes" data-testid="index-meshes-${slug(c.name)}">${c.meshes} ${c.meshes === 1 ? 'mesh' : 'meshes'}</span>
-    </div>
-  </article>`).join('') + `
+    <span class="index-group" data-testid="index-group-${slug(c.name)}">${esc(c.group)}</span>
+    <span class="index-detail" data-testid="index-method-${slug(c.name)}">Procedural</span>
+    <span class="index-meshes" data-testid="index-meshes-${slug(c.name)}">${c.meshes} ${c.meshes === 1 ? 'mesh' : 'meshes'}</span>
+  </div>`).join('') + `
   <div class="index-row index-total" data-testid="index-total-card">
-    <span class="index-plus" aria-hidden="true"></span>
+    <span class="index-n">—</span>
     <span class="index-name" data-testid="index-total-name">Total</span>
-    <span class="index-n"></span>
-    <span class="index-group"></span>
+    <span class="index-group">14 types</span>
+    <span class="index-detail">Runtime</span>
     <span class="index-meshes" data-testid="index-total-meshes">${TOTAL_MESHES} meshes</span>
   </div>`;
 
@@ -328,7 +330,9 @@ function boot() {
     if (i < 0) throw new Error(`unknown beat id: ${id}`);
     return i;
   };
-  const RING_START = beatIndex('hinge') + 0.3;
+  const RING_START = beatIndex('hinge');
+  const RING_COMPLETE = beatIndex('worn');
+  const RING_FADE_END = beatIndex('wall') + 0.75;
   const TALLY_START = beatIndex('apart');
   const LEADER_START = beatIndex('exploded') - 0.45;
   const TALLY_LAND = beatIndex('exploded');   // hits 117 exactly where the spec says 117
@@ -549,13 +553,23 @@ function boot() {
       document.documentElement.style.setProperty('--ink-flip', String(inkFlip));
     }
 
-    // Ring gauge draws itself around the object through the worn/wall beats.
-    const ringT = Math.max(0, Math.min(1, (p * spans - RING_START) / 2.2));
+    // Draw a true full circumference by the Worn beat, then keep the completed
+    // circle intact while its opacity eases away through the following beat.
+    const ringRel = p * spans;
+    const ringT = Math.max(0, Math.min(1,
+      (ringRel - RING_START) / (RING_COMPLETE - RING_START)));
+    const ringFadeT = Math.max(0, Math.min(1,
+      (ringRel - RING_COMPLETE) / (RING_FADE_END - RING_COMPLETE)));
+    const ringOpacity = ringT > 0.002
+      ? 1 - ringFadeT * ringFadeT * (3 - 2 * ringFadeT)
+      : 0;
     const C = 2 * Math.PI * 186;
-    ring.style.opacity = ringT > 0.002 && ringT < 0.998 ? 1 : 0;
+    ring.style.opacity = String(ringOpacity);
     ringDark.style.strokeDasharray = `${C * 0.62 * ringT} ${C}`;
     ringPale.style.strokeDasharray = `${C * 0.38 * ringT} ${C}`;
     ringPale.style.strokeDashoffset = `${-C * 0.62 * ringT}`;
+    ring.dataset.progress = ringT.toFixed(3);
+    ring.dataset.opacity = ringOpacity.toFixed(3);
 
     // Tally: counts up to the real mesh total and LANDS on the beat whose spec
     // row states it, then holds through the graphite act. Previously it ramped

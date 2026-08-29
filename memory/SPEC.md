@@ -18,9 +18,11 @@ Caliber 08 is a self-contained editorial product study of a procedural mechanica
 4. Use the component index filters to focus on Structure, Face, Movement, or Band.
 5. Use the finish list, next button, or pointer zones in the finale to compare the four material presets; the `Caliber 08` finale lettering stays behind the watches.
 
-The former floating watch-card transition was removed to keep the hinge-to-index handoff clean. The index intro and cards use a compact layout with roughly 30% less vertical space.
+The former floating watch-card transition was removed to keep the hinge-to-index handoff clean. Section 11 is a dense technical catalog with number, component, assembly group, generation method, and mesh-count columns; most or all 14 rows fit within one desktop viewport.
 
 The decorative miniature watch glyph was removed from the scroll chrome; only functional navigation and technical indicators remain.
+
+The two-tone circular gauge begins at Hinge, completes a full 360° circumference exactly at 10 — Worn, and fades smoothly during the following beat without clipping the viewport.
 
 ## Accessibility and fallbacks
 
