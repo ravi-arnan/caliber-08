@@ -39,4 +39,5 @@ The Hinge zoom-out is an active technical transition with animated orbit geometr
 - `backend/` contains only a database-free `/api/health` compatibility service; it has no product data, MongoDB connection, or business logic.
 - Vite accepts deployment hosts dynamically through `ALLOWED_HOSTS`, defaulting to the platform-provided host when unset.
 - `frontend/.env` is a tracked, non-secret deployment contract containing only `VITE_APP_MODE=frontend_only` and `PORT=3000`; both frontend and backend env files are explicitly un-ignored.
+- The root `.env` is also tracked with non-secret `APP_MODE=frontend_only` and `PORT=3000`, satisfying the build collector paths at `.env`, `frontend/.env`, and `backend/.env` together.
 - `frontend/vite.config.ts` re-exports the root Vite configuration so Emergent recognizes the read-only supervisor `yarn dev` command as the supported Vite template path.

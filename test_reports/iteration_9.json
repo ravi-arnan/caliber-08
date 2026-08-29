@@ -1,0 +1,58 @@
+{
+  "iteration": 9,
+  "mode": "generate",
+  "summary": "Re-verified all 6 acceptance criteria for the root .env build-context fix and full env/build/runtime health. /app/.env (APP_MODE=frontend_only, PORT=3000), frontend/.env (VITE_APP_MODE=frontend_only, PORT=3000) and backend/.env (APP_MODE=frontend_only) all exist with only approved non-secret KEY=VALUE lines and no Mongo credentials; .gitignore blanket-denies .env/.env.*/*.env then explicitly negates '!/.env', '!backend/.env', '!frontend/.env' so all three survive checkout. 'yarn build' from /app and from /app/frontend both exited 0 producing dist/index.html + assets (672KB main chunk triggers only a size warning, not a failure). Supervisor shows backend and frontend RUNNING; localhost:3000 returns 200 and the Caliber 08 document; localhost:8001/api/health returns exactly {status:'ok',mode:'frontend_only'}. frontend/vite.config.ts exists and is used by the yarn dev/build wrapper scripts; a production-style Host header (some-random-prod-app.example.com) against localhost:3000 returns 200. Re-ran 2 pre-existing browser checks against the public ingress and localhost: frontend-renders-caliber08-scene (57 meshes/57 parts) and public-url-stable-through-full-flow (https://blog-552.preview.emergentagent.com, full Case/Dial/Hinge/Worn/Index/Finale flow, zero console/network errors). No application code changes were made or needed.",
+  "passed": 6,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The newest root .env build-context failure is resolved",
+      "name": "env-inspection-root",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "cat /app/.env -> 'APP_MODE=frontend_only\\nPORT=3000' (valid KEY=VALUE syntax, no secrets); git check-ignore -v .env -> matched by '.gitignore:9:!/.env' negation, i.e. explicitly un-ignored."
+    },
+    {
+      "criterion": "All env collector paths are complete together",
+      "name": "env-inspection-all-three",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "cat frontend/.env -> 'VITE_APP_MODE=frontend_only\\nPORT=3000'; cat backend/.env -> 'APP_MODE=frontend_only'; git check-ignore -v .env frontend/.env backend/.env -> all three matched by their respective '!' negation lines (9,10,11) after the blanket .env/.env.*/*.env deny rules; no Mongo URI/credentials in any file."
+    },
+    {
+      "criterion": "Application complexity is not blocking compilation",
+      "name": "build-both-entrypoints",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "'cd /app && yarn build' -> '18 modules transformed... built in 2.03s', exit 0, dist/index.html+assets present; 'cd /app/frontend && yarn build' -> same output, exit 0; the 672.94kB chunk only produces the '(!) Some chunks are larger than 500kB' warning, not an error."
+    },
+    {
+      "criterion": "Emergent runtime services are healthy",
+      "name": "supervisor-and-health-check",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "supervisorctl status -> 'backend RUNNING', 'frontend RUNNING'; curl localhost:3000 -> 200 with Caliber 08 document; curl localhost:8001/api/health -> exactly {\"status\":\"ok\",\"mode\":\"frontend_only\"}; pytest test_tscheck_health_frontend_only.py -> '2 passed in 0.11s'."
+    },
+    {
+      "criterion": "Vite deployment classification and production hosts are valid",
+      "name": "vite-config-and-host-header",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "ls frontend/vite.config.ts -> exists; frontend/package.json build/dev scripts invoke '../node_modules/.bin/vite --config ./vite.config.ts'; curl -H 'Host: some-random-prod-app.example.com' localhost:3000 -> 200 (not 403)."
+    },
+    {
+      "criterion": "Public ingress and core experience remain healthy",
+      "name": "public-url-stable-through-full-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran against https://blog-552.preview.emergentagent.com: navigated Case/Dial/Hinge/Worn beats then Index and Finale nav sections; zero console/page errors, zero failed/4xx/5xx network responses. Complemented by frontend-renders-caliber08-scene on localhost:3000 confirming window.__scene {meshes:57, parts:57}."
+    }
+  ],
+  "notes": [
+    "Repo state was already fully compliant on inspection; no code changes were required.",
+    "Backend test suite (test_tscheck_health_frontend_only.py) and 2 browser checks reused/re-run per retest-style discipline rather than re-authored, since the matrix overlaps prior iteration's verified criteria."
+  ]
+}
