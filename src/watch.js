@@ -65,7 +65,7 @@ function makeDialTexture() {
 
   g.textAlign = 'center';
   g.fillStyle = 'rgba(240,240,244,0.90)';
-  g.font = '600 38px Archivo, Helvetica, sans-serif';
+  g.font = '600 38px "Cormorant Garamond", Georgia, serif';
   g.letterSpacing = '6px';
   g.fillText('CALIBER', mid, mid * 0.60);
   g.font = '400 21px "JetBrains Mono", monospace';

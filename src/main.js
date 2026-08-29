@@ -21,6 +21,9 @@ const tally = document.getElementById('tally');
 const glyph = document.getElementById('glyph');
 const explore = document.getElementById('explore');
 const hint = document.querySelector('.hint');
+const chapter = document.getElementById('chapter');
+const chapterId = document.getElementById('chapter-id');
+const chapterLabel = document.getElementById('chapter-label');
 const leadersEl = document.getElementById('leaders');
 const datumEl = document.getElementById('datum');
 const tallyN = document.getElementById('tally-n');
@@ -35,8 +38,8 @@ const ringPale = ring.querySelector('.ring-pale');
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-const specRows = (specs) => specs.length
-  ? `<dl class="specs">${specs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`
+const specRows = (specs, id) => specs.length
+  ? `<dl class="specs" data-testid="beat-specifications-${id}">${specs.map(([k, v]) => { const key = String(k).toLowerCase().replace(/[^a-z0-9]+/g, '-'); return `<div><dt data-testid="spec-label-${id}-${key}">${esc(k)}</dt><dd data-testid="spec-value-${id}-${key}">${esc(v)}</dd></div>`; }).join('')}</dl>`
   : '';
 
 /**
@@ -68,11 +71,11 @@ const backdropMarkup = (b) => Array.isArray(b.backdrop)
 /** Copy blocks, one per beat. Built from BEATS so the text lives in one place. */
 function renderCopy() {
   overlay.innerHTML = BEATS.map((b, i) => b.title
-    ? `<article class="beat-copy" data-i="${i}" data-align="${b.align}" ${i === 0 ? 'data-lead' : ''}>
-      ${b.kicker ? `<p class="kicker">${esc(b.kicker)}</p>` : ''}
-      <h2 class="beat-title">${glyphs(b.title)}</h2>
-      <p class="beat-body">${esc(b.body)}</p>
-      ${specRows(b.specs)}
+    ? `<article class="beat-copy" data-i="${i}" data-align="${b.align}" data-testid="beat-copy-${b.id}" ${i === 0 ? 'data-lead' : ''}>
+      ${b.kicker ? `<p class="kicker" data-testid="beat-kicker-${b.id}">${esc(b.kicker)}</p>` : ''}
+      <h2 class="beat-title" data-testid="beat-title-${b.id}">${glyphs(b.title)}</h2>
+      <p class="beat-body" data-testid="beat-body-${b.id}">${esc(b.body)}</p>
+      ${specRows(b.specs, b.id)}
     </article>`
     : `<article class="beat-copy" data-i="${i}" data-empty></article>`).join('');
 
@@ -82,20 +85,26 @@ function renderCopy() {
 }
 renderCopy();
 
+const slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 document.getElementById('index-table').innerHTML = COMPONENTS.map((c) => `
-  <div class="index-row">
-    <span class="index-plus" aria-hidden="true">+</span>
-    <span class="index-name">${esc(c.name)}</span>
-    <span class="index-n">${esc(c.n)}</span>
-    <span class="index-group">${esc(c.group)}</span>
-    <span class="index-meshes">${c.meshes} ${c.meshes === 1 ? 'mesh' : 'meshes'}</span>
-  </div>`).join('') + `
-  <div class="index-row index-total">
+  <article class="index-row index-card" data-group="${esc(c.group)}" data-testid="index-card-${slug(c.name)}">
+    <div class="index-card-head">
+      <span class="index-n" data-testid="index-number-${slug(c.name)}">${esc(c.n)}</span>
+      <span class="index-plus" aria-hidden="true">+</span>
+      <span class="index-group" data-testid="index-group-${slug(c.name)}">${esc(c.group)}</span>
+    </div>
+    <span class="index-name" data-testid="index-name-${slug(c.name)}">${esc(c.name)}</span>
+    <div class="index-card-foot">
+      <span class="index-detail">Runtime geometry</span>
+      <span class="index-meshes" data-testid="index-meshes-${slug(c.name)}">${c.meshes} ${c.meshes === 1 ? 'mesh' : 'meshes'}</span>
+    </div>
+  </article>`).join('') + `
+  <div class="index-row index-total" data-testid="index-total-card">
     <span class="index-plus" aria-hidden="true"></span>
-    <span class="index-name">Total</span>
+    <span class="index-name" data-testid="index-total-name">Total</span>
     <span class="index-n"></span>
     <span class="index-group"></span>
-    <span class="index-meshes">${TOTAL_MESHES} meshes</span>
+    <span class="index-meshes" data-testid="index-total-meshes">${TOTAL_MESHES} meshes</span>
   </div>`;
 
 [...document.querySelectorAll('.index-row')].forEach((row, i) => {
@@ -107,6 +116,20 @@ const rowObserver = new IntersectionObserver((entries) => {
   for (const e of entries) if (e.isIntersecting) e.target.dataset.in = '';
 }, { threshold: 0.2 });
 document.querySelectorAll('.index-row').forEach((r) => rowObserver.observe(r));
+
+const indexFilters = [...document.querySelectorAll('.index-filter')];
+const indexFilterStatus = document.getElementById('index-filter-status');
+const indexRows = [...document.querySelectorAll('.index-card')];
+indexFilters.forEach((button) => button.addEventListener('click', () => {
+  const filter = button.dataset.filter ?? 'all';
+  const visible = indexRows.filter((row) => filter === 'all' || row.dataset.group === filter);
+  indexRows.forEach((row) => row.toggleAttribute('data-hidden', !visible.includes(row)));
+  visible.forEach((row) => { row.dataset.in = ''; });
+  indexFilters.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+  indexFilterStatus.textContent = filter === 'all'
+    ? `Showing all ${COMPONENTS.length} component types`
+    : `Showing ${visible.length} ${filter} component types`;
+}));
 
 const cardsLayer = document.getElementById('cards');
 cardsLayer.innerHTML = CARD_LAYOUT
@@ -164,7 +187,7 @@ if (!reduced && !document.body.dataset.static) try {
     },
   });
   finaleList.innerHTML = finale.watches
-    .map((w, i) => `<li><button type="button" data-i="${i}">${esc(w.label)}</button></li>`).join('');
+    .map((w, i) => `<li><button type="button" data-i="${i}" data-testid="finale-finish-${w.key}">${esc(w.label)}</button></li>`).join('');
   finaleList.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-i]');
     if (btn) finale.select(+btn.dataset.i);
@@ -214,7 +237,7 @@ if (!reduced && !document.body.dataset.static) try {
 
 function finaleStaticList() {
   finaleList.innerHTML = ['Brushed steel', 'Graphite', 'Yellow gold', 'Rose gold']
-    .map((l) => `<li><span>${esc(l)}</span></li>`).join('');
+    .map((l, i) => `<li><span data-testid="finale-static-option-${i}">${esc(l)}</span></li>`).join('');
 }
 
 
@@ -344,6 +367,7 @@ function boot() {
   let rafId = 0;
   let running = false;
   let lastTone = '';
+  let lastChapter = -1;
   let inkFlip = 0;
   let lastTally = -1;
   const INK_FLIP_DOWN = 0.70;   // scrolling down: dark ink -> light
@@ -427,6 +451,16 @@ function boot() {
     // type travels several times faster than the object, so lines swim past it —
     // locking them together is what made the earlier build feel flat.
     const spans = BEATS.length - 1;
+
+    const chapterIndex = Math.min(BEATS.length - 1, Math.round(p * spans));
+    if (chapterIndex !== lastChapter) {
+      const beat = BEATS[chapterIndex];
+      const label = beat.kicker?.replace(/^\d+\s—\s/, '') ?? beat.id;
+      chapterId.textContent = String(chapterIndex).padStart(2, '0');
+      chapterLabel.textContent = label;
+      chapter.dataset.beat = beat.id;
+      lastChapter = chapterIndex;
+    }
 
     copyEls.forEach((el, i) => {
       const o = copyOpacity(p, i);

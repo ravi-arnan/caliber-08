@@ -13,12 +13,12 @@
    * paragraph vanish in the dark act. */
   --tone: 0;
 
-  --paper-light:  oklch(95.5% 0 0);
-  --paper-mid:    oklch(76%   0 0);
-  --paper-dark:   oklch(17%   0 0);
+  --paper-light:  oklch(96% 0.012 90);
+  --paper-mid:    oklch(72% 0.022 88);
+  --paper-dark:   oklch(15% 0.025 260);
 
-  --ink-on-light: oklch(18%   0 0);
-  --ink-on-dark:  oklch(97%   0 0);
+  --ink-on-light: oklch(14% 0.018 260);
+  --ink-on-dark:  oklch(96% 0.012 90);
 
   /* 0 or 1, written by the render loop. NOT a blend of --tone.
    *
@@ -35,7 +35,7 @@
       color-mix(in oklch, var(--paper-light), var(--paper-mid) calc(min(var(--tone), 0.5) * 200%)),
       var(--paper-dark) calc(max(var(--tone) - 0.5, 0) * 200%));
 
-  --color-paper-2:    oklch(91% 0 0);
+  --color-paper-2:    oklch(92% 0.012 90);
   --color-paper-mid:  var(--paper-mid);
 
   --color-ink: color-mix(in oklch, var(--ink-on-light),
@@ -48,7 +48,7 @@
   --color-ink-faint:  color-mix(in srgb, var(--color-ink) 13%, transparent);
   --color-focus:      var(--color-ink);
 
-  --font-display: 'Archivo', 'Helvetica Neue', sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body:    'Instrument Sans', system-ui, sans-serif;
   --font-label:   'JetBrains Mono', ui-monospace, monospace;
 
@@ -57,7 +57,7 @@
   --space-sm:  0.75rem;
   --space-md:  1.25rem;
   --space-lg:  2rem;
-  --space-xl:  3.5rem;
+  --space-xl:  4.5rem;
 
   --text-label: 0.6875rem;
   --text-body:  0.9375rem;

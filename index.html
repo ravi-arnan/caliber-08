@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23222' stroke-width='2'/%3E%3Cpath d='M16 8v8l5 3' stroke='%23222' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
 </head>
 <body>
 
@@ -28,8 +28,12 @@
     <!-- The page had 12 h2 beat titles and no h1 at all. This is the real
          document heading; its small visual size is a style choice, not a
          semantic one. -->
-    <h1 class="wordmark">Caliber&nbsp;08</h1>
-    <p class="hint">Scroll to explore</p>
+    <h1 class="wordmark" data-testid="site-wordmark">Caliber&nbsp;08</h1>
+    <p class="hint" data-testid="scroll-hint">Scroll to explore</p>
+    <div class="chapter" id="chapter" data-testid="chapter-status" aria-live="polite">
+      <span id="chapter-id">00</span>
+      <span id="chapter-label">Opening sequence</span>
+    </div>
     <span class="crosshair crosshair-h"></span>
     <span class="crosshair crosshair-v"></span>
     <!-- Two-tone gauge that draws itself around the object. -->
@@ -46,14 +50,20 @@
       <path d="M24 6v4M24 38v4M6 24h4M38 24h4" />
       <path d="M24 24l8-6" class="glyph-hand" />
     </svg>
-    <button class="explore" id="explore" type="button" aria-pressed="false">
+    <button class="explore" id="explore" type="button" aria-pressed="false" data-testid="explore-components-button">
       <span class="explore-mark" aria-hidden="true"></span>Hold to explore
     </button>
     <div class="leaders" id="leaders" aria-hidden="true"></div>
     <span class="datum" id="datum" aria-hidden="true"></span>
-    <p class="tally" id="tally" aria-hidden="true"><span id="tally-n">0</span><em>meshes</em></p>
-    <div class="progress"><span id="bar"></span></div>
+    <p class="tally" id="tally" aria-hidden="true" data-testid="mesh-tally"><span id="tally-n">0</span><em>meshes</em></p>
+    <div class="progress" data-testid="scroll-progress-indicator"><span id="bar"></span></div>
   </div>
+
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a href="#scroll-track" data-testid="nav-explore-link"><span>00</span> Explore</a>
+    <a href="#index" data-testid="nav-index-link"><span>11</span> Index</a>
+    <a href="#finale" data-testid="nav-finale-link"><span>12</span> Finishes</a>
+  </nav>
 
   <!-- Pure spacer: gives the page its scroll length. -->
   <div id="scroll-track" aria-hidden="true"></div>
@@ -62,9 +72,20 @@
   <section id="index">
     <header class="index-head">
       <p class="kicker">11 — Index</p>
-      <h2 class="index-title">Every part, counted</h2>
-      <p class="index-note">Fourteen component types, generated at runtime. The mesh column is checked against the count the live scene reports.</p>
+      <h2 class="index-title" data-testid="index-heading">Every part, counted</h2>
+      <p class="index-note" data-testid="index-description">Fourteen component types, generated at runtime. The mesh column is checked against the count the live scene reports.</p>
     </header>
+    <div class="index-toolbar">
+      <p class="index-filter-label" data-testid="index-filter-label">Filter by assembly area</p>
+      <div class="index-filters" role="group" aria-label="Filter components by assembly area">
+        <button type="button" class="index-filter" data-filter="all" aria-pressed="true" data-testid="index-filter-all">All <span>14</span></button>
+        <button type="button" class="index-filter" data-filter="Structure" aria-pressed="false" data-testid="index-filter-structure">Structure <span>5</span></button>
+        <button type="button" class="index-filter" data-filter="Face" aria-pressed="false" data-testid="index-filter-face">Face <span>6</span></button>
+        <button type="button" class="index-filter" data-filter="Movement" aria-pressed="false" data-testid="index-filter-movement">Movement <span>2</span></button>
+        <button type="button" class="index-filter" data-filter="Band" aria-pressed="false" data-testid="index-filter-band">Band <span>1</span></button>
+      </div>
+      <p class="index-filter-status" id="index-filter-status" aria-live="polite" data-testid="index-filter-status">Showing all 14 component types</p>
+    </div>
     <div class="index-table" id="index-table"></div>
   </section>
 
@@ -77,16 +98,19 @@
          finish list below stays visible and focusable so this is still
          operable by keyboard and screen reader. -->
     <div class="finale-hit" aria-hidden="true">
-      <button class="finale-half" data-step="-1" type="button" tabindex="-1"></button>
-      <button class="finale-half" data-step="1" type="button" tabindex="-1"></button>
+      <button class="finale-half" data-step="-1" type="button" tabindex="-1" aria-label="Previous finish" data-testid="finale-previous-zone"></button>
+      <button class="finale-half" data-step="1" type="button" tabindex="-1" aria-label="Next finish" data-testid="finale-next-zone"></button>
     </div>
     <div class="model-cursor" id="model-cursor" aria-hidden="true"><span>Select<br>model</span></div>
-    <div class="finale-ui">
-      <button id="select-model" class="select-model" type="button">
-        <span>Select<br>model</span>
+    <div class="finale-ui" data-testid="finale-selector">
+      <div class="finale-current">
+        <p class="finale-eyebrow" data-testid="finale-selected-label">Selected finish</p>
+        <p class="finale-label" id="finale-label" aria-live="polite" data-testid="finale-selected-finish">Brushed steel</p>
+      </div>
+      <button id="select-model" class="select-model" type="button" data-testid="finale-next-button">
+        <span>Next finish</span><span class="button-arrow" aria-hidden="true">↗</span>
       </button>
-      <p class="finale-label" id="finale-label" aria-live="polite">Brushed steel</p>
-      <p class="finale-count" id="finale-count" aria-hidden="true">01 / 04</p>
+      <p class="finale-count" id="finale-count" aria-hidden="true" data-testid="finale-finish-count">01 / 04</p>
     </div>
     <ul class="finale-list" id="finale-list"></ul>
   </section>

@@ -1,0 +1,73 @@
+{
+  "iteration": 1,
+  "mode": "generate",
+  "summary": "8 browser checks executed for the 7 acceptance criteria of the Caliber 08 procedural watch experience (standalone Vite/Three.js frontend, no backend API per spec_deviations). All checks passed.",
+  "passed": 8,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The public Caliber 08 experience loads and presents the procedural watch hero with persistent section navigation",
+      "name": "hero-loads-with-nav-and-scene",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Hero rendered with Caliber 08 title, watch mesh, and visible Explore/Index/Finishes nav links; body text contained '57' mesh reference. Screenshot confirms rendered 3D watch hero."
+    },
+    {
+      "criterion": "The public Caliber 08 experience loads and presents the procedural watch hero with persistent section navigation",
+      "name": "scene-reports-57-meshes-and-parts",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "After scrolling into the Assembly beat, body text contained 'NO MODEL NO TEXTURES NO ASSETS 57 MESHES' and 'Component types 14 Meshes 57', confirming the live scene reports 57 meshes / 14 component types (57 parts)."
+    },
+    {
+      "criterion": "The scroll-led editorial experience remains usable after the visual enhancement",
+      "name": "scroll-track-changes-beat-content",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Captured body text + screenshots at 3 scroll depths; text differed between each depth (Overview -> Case/Bezel -> Assembly beats), zero pageerror events and zero failed network requests recorded."
+    },
+    {
+      "criterion": "The component index is an architectural card grid with useful filtering",
+      "name": "index-movement-filter-shows-two",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Navigated to Index section, clicked Movement filter button; body text contained 'Showing 2 Movement component types', 'Mainplate', and 'Rotor'."
+    },
+    {
+      "criterion": "The finale clearly supports finish comparison",
+      "name": "finale-next-finish-changes-to-graphite",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Finale showed 'Brushed steel' + '01 / 04' initially; after clicking 'Next finish' body text updated to contain 'Graphite' and '02 / 04'."
+    },
+    {
+      "criterion": "The custom finale cursor does not obscure real controls",
+      "name": "finale-cursor-does-not-obscure-controls",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Hovered the Graphite finish option button, screenshot shows clean unobstructed UI (no decorative cursor overlay covering controls); click succeeded and body text updated to 'Graphite'."
+    },
+    {
+      "criterion": "Reduced-motion users receive a readable fallback",
+      "name": "reduced-motion-shows-readable-fallback",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "With page.emulateMedia({reducedMotion:'reduce'}) set before navigation, screenshot shows a stacked static document (Caliber 08 title, '00 - Overview / Nothing here was loaded', '01 - Case / Brushed and beveled' sections) with no pinned WebGL choreography; body text contained 'Mainplate'."
+    },
+    {
+      "criterion": "Core controls are keyboard accessible",
+      "name": "keyboard-controls-are-focusable",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Explore/Index/Finishes nav links, Movement index filter button, and Next finish button were each .focus()-able and toBeFocused()-verified; Enter key activation on Index nav link navigated section, on Movement filter produced 'Showing 2 Movement component types', and on Next finish button produced 'Graphite' in body text."
+    }
+  ],
+  "notes": [
+    "No backend API exists in this repo (standalone Vite/Three.js frontend per spec_deviations); no backend pytest lane was applicable and none was written.",
+    "Acceptance matrix had 7 criteria; 8 browser checks were used because the first criterion (hero load + persistent nav + scene mesh/part counts) was split into two focused checks (hero render/nav, and the 57-meshes/parts reporting on scroll) for clearer, single-flow evidence.",
+    "Public ingress URL https://blog-552.preview.emergentagent.com was used for all checks as instructed by spec_deviations."
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "theme": "dark_and_light_hybrid",
+  "archetype": "Luxury & Swiss High-Contrast Hybrid",
+  "typography": {
+    "display_font": "'Cormorant Garamond', 'Playfair Display', serif",
+    "body_font": "'Instrument Sans', 'Helvetica Neue', sans-serif",
+    "label_font": "'JetBrains Mono', ui-monospace, monospace",
+    "hierarchy": {
+      "h1_hero": "clamp(5rem, 20vw, 18rem); tracking-tighter (-0.05em); line-height: 0.85",
+      "h2_section": "clamp(2.5rem, 5vw, 4rem); tracking-tight (-0.03em); line-height: 1.05",
+      "body": "0.95rem; line-height: 1.6; tracking-normal",
+      "labels": "0.7rem; tracking-widest (0.15em); uppercase",
+      "numbers": "font-variant-numeric: tabular-nums; tracking-tight"
+    },
+    "instructions_to_main_agent": "Update `--font-display`, `--font-body`, and `--font-label` in tokens.css. Use Light/Regular weights for Serif headings to create elegance, and medium weights for Mono labels. Headings must be tightly tracked. Labels must be widely tracked."
+  },
+  "colors": {
+    "primary_palette": {
+      "paper_light": "oklch(96% 0.01 90)", 
+      "paper_mid": "oklch(70% 0.02 90)", 
+      "paper_dark": "oklch(14% 0.02 260)",
+      "ink_on_light": "oklch(12% 0.02 260)",
+      "ink_on_dark": "oklch(96% 0.01 90)"
+    },
+    "accents": {
+      "focus_ring": "var(--color-ink)",
+      "faint_lines": "color-mix(in srgb, var(--color-ink) 12%, transparent)"
+    },
+    "instructions_to_main_agent": "Enhance tokens.css. Do not use pure greys; tint light themes with warm bone/sand tones, and dark themes with deep midnight obsidian tones. Ensure the tone blending (scroll-driven) remains, but the start and end states feel like premium physical materials."
+  },
+  "layouts": {
+    "spacing_scale": {
+      "xs": "0.5rem",
+      "sm": "1rem",
+      "md": "2rem",
+      "lg": "4rem",
+      "xl": "8rem",
+      "xxl": "12rem"
+    },
+    "component_index": {
+      "structure": "Bento Grid Protocol. Migrate from a simple table row to a dense, asymmetric grid.",
+      "columns": "grid-template-columns: repeat(12, 1fr); gap: 2rem;",
+      "item_span": "Vary between col-span-4, col-span-6, and col-span-12 based on component significance."
+    },
+    "finale": {
+      "structure": "Full viewport immersive. Keep the huge typography in the background. Move the model selector to an elegant floating 'Crystal Glass' pill at the bottom center."
+    },
+    "instructions_to_main_agent": "Refactor style.css. Apply generative spacing (generous gaps). The index section should feel like an architectural blueprint grid, not a basic list. For .finale-ui, position it cleanly at the bottom, overlapping the canvas."
+  },
+  "visual_enhancers": {
+    "textures": {
+      "grain": "Apply a subtle SVG noise overlay fixed to the viewport with pointer-events: none, opacity: 0.04 to remove digital flatness."
+    },
+    "surfaces": {
+      "glassmorphism": "For floating UI elements (like the explore button and finale selector): backdrop-filter: blur(16px) saturate(150%); border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent)."
+    },
+    "instructions_to_main_agent": "Add noise texture via CSS pseudo-elements or a dedicated #grain div. Convert .explore and .model-cursor to use premium 'Crystal Glass' rules. Add refined drop-shadows to floating UI."
+  },
+  "motion_and_interactions": {
+    "scroll_choreography": {
+      "library": "GSAP + ScrollTrigger",
+      "feel": "Add 'momentum' using Lenis (if package addition allowed) or tweak GSAP scrub smoothing to 1.2s for cinematic weighty scrolling. The watch assembly/disassembly must feel mechanically precise."
+    },
+    "micro_interactions": {
+      "hover": "Buttons and links should have a magnetic feel or slow fill transitions (transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1)).",
+      "cursor": "Enhance .model-cursor to lag slightly behind the true pointer using requestAnimationFrame and lerp (linear interpolation)."
+    },
+    "reduced_motion": {
+      "fallback": "Respect prefers-reduced-motion. Ensure the [data-static] fallback presents the watch components as a beautifully typeset static editorial stack without WebGL."
+    },
+    "instructions_to_main_agent": "In main.js and finale.js, polish the GSAP timelines to use ease: 'power2.inOut'. Ensure the custom cursor tracking in the finale uses a lerp for smooth, heavy tracking rather than snapping 1:1."
+  },
+  "accessibility": {
+    "contrast": "Maintain APCA standards. If text overlays the watch, ensure sufficient ambient shadow or strict bounding boxes so text does not clash with the 3D geometry.",
+    "testing": "All interactive elements (buttons, selectors, timeline jumps) MUST include `data-testid` attributes (e.g., data-testid='explore-button', data-testid='finale-selector-model').",
+    "focus": "Do not remove :focus-visible rings. Style them elegantly (2px solid, offset)."
+  },
+  "media_and_3d": {
+    "three_js": {
+      "lighting": "Enhance lighting in the Three.js scene (watch.js). Add an environment map or multiple subtle directional lights to give the procedural watch parts a metallic, brushed, or polished look rather than flat gray.",
+      "materials": "In the finale.js finish selector, clearly distinguish the 4 finishes (e.g., Brushed Steel, PVD Black, Rose Gold, Ceramic) by tweaking metalness, roughness, and color properties."
+    },
+    "instructions_to_main_agent": "Ensure the procedurally generated watch meshes look premium. They need good material definitions (MeshStandardMaterial or MeshPhysicalMaterial) with appropriate roughness and metalness."
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You are working with vanilla JS, CSS, Three.js, and GSAP. Do NOT attempt to convert the codebase to React or Tailwind unless explicitly instructed by the user's workspace constraints. Stick to standard JS files.",
+    "Create depth through layered design elements with z-index hierarchy. Ensure the watch (z-index 1) seamlessly interplays with text (z-index 0 and 3).",
+    "Never use AI emoji characters for icons.",
+    "Every interaction needs micro-animations. Static equals dead.",
+    "Do not center-align everything by default. Use asymmetry and tension.",
+    "Add a custom smooth scroll implementation if possible, or refine GSAP scrubbing for absolute butter-smooth playback.",
+    "For the Component Index, ensure it's not just a basic <ul>/<table>. Make it a stunning architectural grid.",
+    "No generic SaaS aesthetics. This is a high-end, editorial, mechanical study."
+  ]
+}
