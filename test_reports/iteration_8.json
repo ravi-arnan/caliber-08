@@ -1,0 +1,51 @@
+{
+  "iteration": 8,
+  "mode": "generate",
+  "summary": "5 acceptance criteria re-verified via 1 backend pytest file + inline config/env inspections + 2 re-run browser checks. Repo state was already fully compliant: frontend/vite.config.ts re-exports ../vite.config.js, frontend/package.json dev/start/build scripts invoke it via ../node_modules/.bin/vite --config ./vite.config.ts, supervisor shows frontend RUNNING (yarn dev). 'cd /app/frontend && yarn build' succeeded in ~2s producing dist/index.html+assets; localhost:3000 returns the real 'Caliber 08' document (title + wordmark), and a production-style Host header (some-random-prod-app.example.com) returns 200 not 403 because vite.config.js's allowedHosts falls back to true when ALLOWED_HOSTS is unset. frontend/.env (VITE_APP_MODE=frontend_only, PORT=3000) and backend/.env (APP_MODE=frontend_only) both exist, contain only approved non-secret KEY=VALUE lines, and are explicitly un-ignored via '!backend/.env'/'!frontend/.env' negations in .gitignore after the blanket .env/.env.*/*.env deny rules. Supervisor backend is RUNNING and GET localhost:8001/api/health returns exactly {status:'ok',mode:'frontend_only'} with no Mongo/DB import in server.py. Re-ran 2 pre-existing browser checks: frontend-renders-caliber08-scene (localhost:3000, window.__scene 57 meshes/57 parts) and public-url-stable-through-full-flow (against live https://blog-552.preview.emergentagent.com, full Case/Dial/Hinge/Worn/Index/Finale flow, zero console/network errors). No application code changes were needed or made.",
+  "passed": 5,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "The read-only supervisor yarn dev command is now deployment-compatible",
+      "name": "config-inspection-vite-dev",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "cat frontend/vite.config.ts -> \"export { default } from '../vite.config.js';\"; frontend/package.json dev script -> '../node_modules/.bin/vite --config ./vite.config.ts ..'; supervisorctl status -> 'frontend RUNNING pid 20443'."
+    },
+    {
+      "criterion": "The production frontend path builds and serves successfully",
+      "name": "frontend-renders-caliber08-scene",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "cd /app/frontend && yarn build -> '18 modules transformed... built in 2.08s'; curl localhost:3000/ -> title 'Caliber 08 — a mechanical automatic...'; curl -H 'Host: some-random-prod-app.example.com' localhost:3000/ -> 200 (not 403). Browser check found window.__scene {meshes:57, parts:57}."
+    },
+    {
+      "criterion": "Both deployment env contracts are ready",
+      "name": "env-file-inspection-both",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "cat frontend/.env -> 'VITE_APP_MODE=frontend_only\\nPORT=3000'; cat backend/.env -> 'APP_MODE=frontend_only'; git check-ignore -v backend/.env frontend/.env -> both matched by '!backend/.env'/'!frontend/.env' negation lines 9-10, i.e. explicitly un-ignored; no secrets/comments present."
+    },
+    {
+      "criterion": "Backend health readiness passes",
+      "name": "test_tscheck_health_frontend_only.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "cd /app/backend && python -m pytest -q -p no:cacheprovider -> '2 passed in 0.10s'; supervisorctl status -> 'backend RUNNING'; GET http://localhost:8001/api/health -> exactly {\"status\":\"ok\",\"mode\":\"frontend_only\"}."
+    },
+    {
+      "criterion": "Public ingress remains healthy",
+      "name": "public-url-stable-through-full-flow",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Re-ran against https://blog-552.preview.emergentagent.com: window.__scene {meshes:57, parts:57}; navigated Case/Dial/Hinge/Worn beats via #chapter-id, then Index (index-heading visible) and Finale (finale-selector visible) nav links; zero console/page errors, zero failed/4xx/5xx network responses across the flow."
+    }
+  ],
+  "notes": [
+    "Retest-style pass: matrix largely overlaps prior iteration's; existing backend test file and browser checks were re-run by name/re-invoked rather than re-authored where identical, per instructions to avoid duplicate artifacts.",
+    "No new code changes required; environment already satisfied all 5 criteria on inspection."
+  ]
+}

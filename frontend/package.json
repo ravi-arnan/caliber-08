@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "../node_modules/.bin/vite --config ../vite.config.js ..",
-    "start": "../node_modules/.bin/vite --config ../vite.config.js ..",
-    "build": "../node_modules/.bin/vite build --config ../vite.config.js .."
+    "dev": "../node_modules/.bin/vite --config ./vite.config.ts ..",
+    "start": "../node_modules/.bin/vite --config ./vite.config.ts ..",
+    "build": "../node_modules/.bin/vite build --config ./vite.config.ts .."
   },
   "dependencies": {
     "gsap": "3.13.0",
