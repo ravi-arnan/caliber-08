@@ -1,8 +1,16 @@
 {
   "name": "caliber-08",
-  "private": true,
   "version": "0.1.0",
+  "description": "A scroll-choreographed product study — a mechanical watch drawn entirely in code with Three.js, no .glb, no textures.",
   "type": "module",
+  "license": "MIT",
+  "author": "Ravi Arnan <raviarnankeren@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ravi-arnan/caliber-08.git"
+  },
+  "homepage": "https://app.emergent.sh/showcase/building-indonesia/4f0e9d26-d98c-441f-9e8b-819485db08cd",
+  "keywords": ["threejs", "webgl", "gsap", "vite", "creative-coding", "procedural-geometry"],
   "scripts": {
     "dev": "vite",
     "start": "vite",
